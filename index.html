@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brandiup - 진짜 손님을 부르는 진짜 리뷰</title>
+    
+    <!-- Google Fonts: Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* ------------------------- */
+        /* 기본 및 전역 스타일        */
+        /* ------------------------- */
+        :root {
+            --main-navy: #001f3f;
+            --point-orange: #FF851B;
+            --light-gray: #f4f4f4;
+            --text-dark: #333333;
+            --text-light: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #ffffff;
+            color: var(--text-dark);
+            line-height: 1.7;
+            word-break: keep-all; /* 단어 단위 줄바꿈으로 가독성 향상 */
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        section {
+            padding: 100px 0;
+            scroll-margin-top: 70px; /* 헤더 높이만큼 스크롤 위치 조정 */
+        }
+
+        h1, h2, h3 {
+            color: var(--main-navy);
+            font-weight: 900;
+        }
+
+        /* ------------------------- */
+        /* 헤더 (Header)              */
+        /* ------------------------- */
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* [수정됨] 로고 이미지 스타일 */
+        .header .logo a {
+            display: inline-flex; /* 이미지를 감싸는 링크의 정렬을 위해 추가 */
+            align-items: center;
+            height: 100%;
+            text-decoration: none; /* 링크 밑줄 제거 */
+        }
+
+        .header .logo img {
+            height: 45px; /* 로고 높이. 헤더 높이(70px)에 맞춰 조절하세요. */
+            width: auto;
+            /* [추가됨] 로고 이미지 모서리를 둥글게 처리 (값 조절 또는 삭제 가능) */
+            border-radius: 12px; 
+        }
+
+        .header .logo span {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--main-navy); /* 기본 네이비 색상. 주황색으로 하려면 var(--point-orange)로 변경 */
+            margin-left: 12px;     /* 이미지와 텍스트 사이의 간격 */
+        }        
+
+        .header .main-nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .header .main-nav li {
+            margin-left: 30px;
+        }
+
+        .header .main-nav a {
+            text-decoration: none;
+            color: var(--main-navy);
+            font-weight: 700;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        .header .main-nav a:hover {
+            color: var(--point-orange);
+        }
+
+        /* ------------------------- */
+        /* 메인 섹션 (Hero)          */
+        /* ------------------------- */
+        #hero {
+            background-color: #ffffff;
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 70px; /* 고정 헤더 높이만큼 패딩 추가 */
+        }
+
+        #hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        #hero .sub-copy {
+            font-size: 20px;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--point-orange);
+            color: #ffffff;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ------------------------- */
+        /* 서비스 소개 (Services)      */
+        /* ------------------------- */
+        #services {
+            text-align: center;
+        }
+
+        #services h2 {
+            font-size: 36px;
+            margin-bottom: 50px;
+        }
+        
+        #services .service-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        #services .service-content p {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin-bottom: 25px;
+        }
+        
+        #services .service-content p:last-child {
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        /* ------------------------- */
+        /* 가격 안내 (Pricing)        */
+        /* ------------------------- */
+        #pricing {
+            background-color: var(--light-gray);
+            text-align: center;
+        }
+
+        #pricing h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        #pricing .price-box {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 50px auto 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        #pricing .program-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--main-navy);
+        }
+
+        #pricing .price-info {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        #pricing .price-info s {
+            color: var(--text-light);
+            font-size: 20px;
+        }
+        
+        #pricing .special-price {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--point-orange);
+            margin-top: 10px;
+        }
+
+        #pricing .discount-badge {
+            display: inline-block;
+            background-color: var(--point-orange);
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-left: 10px;
+        }
+
+
+        /* ------------------------- */
+        /* 푸터 (Footer)             */
+        /* ------------------------- */
+        .footer {
+            background-color: #333333; /* 요청사항 반영: 회색 계열이지만 가독성을 위해 어둡게 조정 */
+            color: #cccccc;
+            padding: 50px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .footer .footer-content p {
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+        
+        .footer .footer-content .separator {
+            margin: 0 10px;
+        }
+
+        .footer .copyright {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999999;
+        }
+
+        /* ------------------------- */
+        /* 반응형 (Mobile)          */
+        /* ------------------------- */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            section {
+                padding: 60px 0;
+            }
+
+            .header .main-nav {
+                display: none; /* 모바일에서는 메뉴 숨김 (간소화) */
+            }
+
+            #hero h1 {
+                font-size: 36px;
+            }
+
+            #hero .sub-copy {
+                font-size: 18px;
+            }
+
+            #services h2, #pricing h2 {
+                font-size: 28px;
+            }
+            
+            #pricing .special-price {
+                font-size: 36px;
+            }
+            
+            .footer .footer-content p {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .footer .footer-content .separator {
+                display: none;
+            }
+            .footer .footer-content span {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="#hero">
+                    <img src="./images/logo.png" alt="Brandiup 로고">
+                    <span>Brandiup</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#services">서비스 소개</a></li>
+                    <li><a href="#pricing">가격 안내</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- 메인 섹션 -->
+        <section id="hero">
+            <div class="container">
+                <h1>사장님, 요즘 손님들은<br>'이것'부터 확인합니다.</h1>
+                <p class="sub-copy">브랜디업 | 진짜 손님을 부르는 '진짜 리뷰'를 만듭니다.</p>
+                <a href="#services" class="btn">자세히 알아보기</a>
+            </div>
+        </section>
+
+        <!-- 서비스 소개 섹션 -->
+        <section id="services">
+            <div class="container">
+                <h2>왜 브랜디업인가요?</h2>
+                <div class="service-content">
+                    <p>홍보는 해야겠는데, 막막하시죠?<br>넘쳐나는 광고 상품 속에서 옥석을 가리기 힘드신가요?</p>
+                    <p>사장님은 본업에만 집중하세요.<br>진짜 고객을 만드는 진짜 홍보는 브랜디업이 대신하겠습니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 가격 안내 섹션 -->
+        <section id="pricing">
+            <div class="container">
+                <h2>베타 출시 기념, 파격적인 가격으로 시작하세요.</h2>
+                <div class="price-box">
+                    <h3 class="program-title">진심을 담는 블로거 15팀 3개월 집중 관리 프로그램</h3>
+                    <p class="price-info">정상가 <s>450,000원</s></p>
+                    <p class="special-price">베타 특가 150,000원<span class="discount-badge">67% OFF</span></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>
+                    <span>회사명: 엘소프트 (elsoft)</span><span class="separator">|</span><span>대표: 최대완</span>
+                </p>
+                <p>
+                    <span>사업자등록번호: 443-43-00830</span>
+                </p>
+                <p>
+                    <span>주소: 경기도 용인시 처인구 금어로 46 힐스테이트 용인둔전역 105-1705</span>
+                </p>
+                <p>
+                    <span>연락처: 010-8950-4198</span><span class="separator">|</span><span>이메일: cdssw@naver.com</span>
+                </p>
+            </div>
+            <p class="copyright">© 2025 elsoft. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
