@@ -251,6 +251,22 @@
             margin-left: 10px;
         }
 
+        /* [추가] PDF 다운로드 영역 스타일 */
+        #pricing .pdf-download-area {
+            margin-top: 60px;
+        }
+
+        #pricing .pdf-download-area h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        #pricing .pdf-download-area p {
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
 
         /* ------------------------- */
         /* 푸터 (Footer)             */
@@ -368,11 +384,21 @@
         <!-- 가격 안내 섹션 -->
         <section id="pricing">
             <div class="container">
-                <h2>베타 출시 기념, 파격적인 가격으로 시작하세요.</h2>
+                <h2>베타 론칭 기념, 파격적인 가격으로 시작하세요.</h2>
                 <div class="price-box">
-                    <h3 class="program-title">진심을 담는 블로거 15팀 3개월 집중 관리 프로그램</h3>
+                    <h3 class="program-title">진성 블로거 15팀 3개월 집중 관리 프로그램</h3>
                     <p class="price-info">정상가 <s>450,000원</s></p>
                     <p class="special-price">베타 특가 150,000원<span class="discount-badge">67% OFF</span></p>
+                </div>
+
+                <!-- [추가됨] PDF 다운로드 CTA -->
+                <div class="pdf-download-area">
+                    <h3>더 자세한 내용이 궁금하신가요?</h3>
+                    <p>프로그램의 상세 내용이 담긴 제안서를 확인해보세요.</p>
+                    <!-- [중요] href에 실제 PDF 파일 경로를, download에 저장될 파일명을 입력하세요. -->
+                    <a href="./doc/브랜디업 제안서 (베타 런칭 기념 특별가)-배포용.pdf" download="브랜디업_프로모션_제안서.pdf" class="btn">
+                        프로모션 제안서 다운로드
+                    </a>
                 </div>
             </div>
         </section>
