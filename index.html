@@ -20,6 +20,7 @@
             --light-gray: #f4f4f4;
             --text-dark: #333333;
             --text-light: #666666;
+            --kakao-yellow: #FEE500; /* [추가] 카카오톡 색상 변수 */
         }
 
         * {
@@ -37,7 +38,7 @@
             background-color: #ffffff;
             color: var(--text-dark);
             line-height: 1.7;
-            word-break: keep-all; /* 단어 단위 줄바꿈으로 가독성 향상 */
+            word-break: keep-all;
         }
 
         .container {
@@ -48,12 +49,17 @@
 
         section {
             padding: 100px 0;
-            scroll-margin-top: 70px; /* 헤더 높이만큼 스크롤 위치 조정 */
+            scroll-margin-top: 70px;
         }
 
         h1, h2, h3 {
             color: var(--main-navy);
             font-weight: 900;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
         /* ------------------------- */
@@ -76,28 +82,25 @@
             align-items: center;
             height: 100%;
         }
-
-        /* [수정됨] 로고 이미지 스타일 */
+        
         .header .logo a {
-            display: inline-flex; /* 이미지를 감싸는 링크의 정렬을 위해 추가 */
+            display: inline-flex;
             align-items: center;
             height: 100%;
-            text-decoration: none; /* 링크 밑줄 제거 */
         }
 
         .header .logo img {
-            height: 45px; /* 로고 높이. 헤더 높이(70px)에 맞춰 조절하세요. */
+            height: 45px;
             width: auto;
-            /* [추가됨] 로고 이미지 모서리를 둥글게 처리 (값 조절 또는 삭제 가능) */
-            border-radius: 12px; 
+            border-radius: 8px; 
         }
 
         .header .logo span {
             font-size: 22px;
             font-weight: 900;
-            color: var(--main-navy); /* 기본 네이비 색상. 주황색으로 하려면 var(--point-orange)로 변경 */
-            margin-left: 12px;     /* 이미지와 텍스트 사이의 간격 */
-        }        
+            color: var(--main-navy);
+            margin-left: 12px;
+        }
 
         .header .main-nav ul {
             display: flex;
@@ -109,7 +112,6 @@
         }
 
         .header .main-nav a {
-            text-decoration: none;
             color: var(--main-navy);
             font-weight: 700;
             font-size: 16px;
@@ -131,7 +133,7 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding-top: 70px; /* 고정 헤더 높이만큼 패딩 추가 */
+            padding-top: 70px;
         }
 
         #hero h1 {
@@ -154,7 +156,6 @@
             padding: 15px 30px;
             font-size: 18px;
             font-weight: 700;
-            text-decoration: none;
             border-radius: 5px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -183,7 +184,6 @@
 
         #services .service-content p {
             font-size: 18px;
-            color: var(--text-dark);
             margin-bottom: 25px;
         }
         
@@ -219,7 +219,6 @@
             font-size: 22px;
             font-weight: 700;
             margin-bottom: 20px;
-            color: var(--main-navy);
         }
 
         #pricing .price-info {
@@ -250,8 +249,7 @@
             border-radius: 20px;
             margin-left: 10px;
         }
-
-        /* [추가] PDF 다운로드 영역 스타일 */
+        
         #pricing .pdf-download-area {
             margin-top: 60px;
         }
@@ -269,10 +267,71 @@
         }
 
         /* ------------------------- */
+        /* [추가] 문의하기 (Contact)   */
+        /* ------------------------- */
+        #contact {
+            text-align: center;
+        }
+
+        #contact h2 {
+            font-size: 36px;
+            margin-bottom: 50px;
+        }
+
+        #contact .contact-methods {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        #contact .contact-item {
+            background-color: #ffffff;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 30px 40px;
+            width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #contact .contact-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        #contact .contact-item .icon {
+            font-size: 40px;
+            color: var(--point-orange);
+            margin-bottom: 15px;
+        }
+        
+        #contact .contact-item h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        #contact .contact-item p {
+            font-size: 16px;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        #contact .kakao-btn {
+            display: inline-block;
+            background-color: var(--kakao-yellow);
+            color: #3C1E1E;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 700;
+        }
+
+        /* ------------------------- */
         /* 푸터 (Footer)             */
         /* ------------------------- */
         .footer {
-            background-color: #333333; /* 요청사항 반영: 회색 계열이지만 가독성을 위해 어둡게 조정 */
+            background-color: #333333;
             color: #cccccc;
             padding: 50px 0;
             text-align: center;
@@ -307,7 +366,7 @@
             }
 
             .header .main-nav {
-                display: none; /* 모바일에서는 메뉴 숨김 (간소화) */
+                display: none;
             }
 
             #hero h1 {
@@ -318,7 +377,7 @@
                 font-size: 18px;
             }
 
-            #services h2, #pricing h2 {
+            #services h2, #pricing h2, #contact h2 {
                 font-size: 28px;
             }
             
@@ -326,6 +385,16 @@
                 font-size: 36px;
             }
             
+            #contact .contact-methods {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #contact .contact-item {
+                width: 100%;
+                max-width: 350px;
+            }
+
             .footer .footer-content p {
                 display: flex;
                 flex-direction: column;
@@ -355,6 +424,7 @@
                 <ul>
                     <li><a href="#services">서비스 소개</a></li>
                     <li><a href="#pricing">가격 안내</a></li>
+                    <li><a href="#contact">문의하기</a></li>
                 </ul>
             </nav>
         </div>
@@ -402,6 +472,31 @@
                 </div>
             </div>
         </section>
+
+        <section id="contact">
+            <div class="container">
+                <h2>궁금한 점이 있으신가요?</h2>
+                <div class="contact-methods">
+                    <div class="contact-item">
+                        <div class="icon">📞</div>
+                        <h3>전화 문의</h3>
+                        <p><a href="tel:010-8950-4198">010-8950-4198</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon">📧</div>
+                        <h3>이메일 문의</h3>
+                        <p><a href="mailto:admin@brandiup.com">admin@brandiup.com</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <div class="icon">💬</div>
+                        <h3>카카오톡 채널</h3>
+                        <!-- [중요] href="#" 부분에 실제 카카오톡 오픈채널 URL을 넣어주세요. -->
+                        <a href="#" target="http://pf.kakao.com/_xjRRxkn/chat
+" class="kakao-btn">실시간 상담하기</a>
+                    </div>
+                </div>
+            </div>
+        </section>        
     </main>
 
     <!-- 푸터 -->
@@ -418,7 +513,7 @@
                     <span>주소: 경기도 용인시 처인구 금어로 46 힐스테이트 용인둔전역 105-1705</span>
                 </p>
                 <p>
-                    <span>연락처: 010-8950-4198</span><span class="separator">|</span><span>이메일: cdssw@naver.com</span>
+                    <span>연락처: 010-8950-4198</span><span class="separator">|</span><span>이메일: admin@brandiup.com</span>
                 </p>
             </div>
             <p class="copyright">© 2025 elsoft. All Rights Reserved.</p>
