@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
         /* ------------------------- */
         /* 기본 및 전역 스타일        */
@@ -20,7 +22,8 @@
             --light-gray: #f4f4f4;
             --text-dark: #333333;
             --text-light: #666666;
-            --kakao-yellow: #FEE500; /* [추가] 카카오톡 색상 변수 */
+            --kakao-yellow: #FEE500;
+            --kakao-text: #3C1E1E;
         }
 
         * {
@@ -267,7 +270,7 @@
         }
 
         /* ------------------------- */
-        /* [추가] 문의하기 (Contact)   */
+        /* 문의하기 (Contact)   */
         /* ------------------------- */
         #contact {
             text-align: center;
@@ -306,6 +309,12 @@
             margin-bottom: 15px;
         }
         
+        /* [수정] 카카오 아이콘 색상 및 스타일 */
+        #contact .contact-item .icon.kakao-icon {
+            color: var(--kakao-text);
+            font-size: 38px;
+        }
+
         #contact .contact-item h3 {
             font-size: 20px;
             margin-bottom: 10px;
@@ -320,11 +329,15 @@
         #contact .kakao-btn {
             display: inline-block;
             background-color: var(--kakao-yellow);
-            color: #3C1E1E;
+            color: var(--kakao-text);
             padding: 12px 25px;
             border-radius: 8px;
             margin-top: 15px;
             font-weight: 700;
+            transition: background-color 0.3s ease;
+        }
+        #contact .kakao-btn:hover {
+            background-color: #fddc00;
         }
 
         /* ------------------------- */
@@ -488,11 +501,14 @@
                         <p><a href="mailto:admin@brandiup.com">admin@brandiup.com</a></p>
                     </div>
                     <div class="contact-item">
-                        <div class="icon">💬</div>
+                        <!-- [수정] 텍스트 아이콘을 Font Awesome 아이콘으로 변경 -->
+                        <div class="icon kakao-icon">
+                            <i class="fa-solid fa-comment"></i>
+                        </div>
                         <h3>카카오톡 채널</h3>
                         <!-- [중요] href="#" 부분에 실제 카카오톡 오픈채널 URL을 넣어주세요. -->
                         <a href="http://pf.kakao.com/_xjRRxkn/chat" target="_blank" class="kakao-btn">실시간 상담하기</a>
-                    </div>
+                    </div>                    
                 </div>
             </div>
         </section>        
