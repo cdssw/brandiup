@@ -129,10 +129,15 @@
         }
 
         /* ------------------------- */
-        /* 메인 섹션 (Hero)          */
+        /* 메인 섹션 (Hero)     */
         /* ------------------------- */
         #hero {
-            background-color: #ffffff;
+            /* [중요] ./background.jpg를 실제 이미지 파일 경로로 변경하세요. */
+            background-image: url('./images/background.png');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed; /* 스크롤 시 이미지가 고정되는 효과 */
+            
             height: 100vh;
             min-height: 600px;
             display: flex;
@@ -140,17 +145,40 @@
             align-items: center;
             text-align: center;
             padding-top: 70px;
+            
+            position: relative; /* 오버레이의 기준점 */
+            color: #ffffff; /* 내부 텍스트 기본 색상을 흰색으로 */
         }
 
+        /* 다크 오버레이 스타일 */
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 50% 투명도의 검은색 필터 */
+            z-index: 1;
+        }
+
+        /* 콘텐츠가 오버레이 위로 오도록 설정 */
+        #hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* 헤드라인 및 서브카피 색상 변경 */
         #hero h1 {
             font-size: 48px;
             margin-bottom: 20px;
             line-height: 1.4;
+            color: #ffffff; /* 흰색으로 변경 */
         }
 
         #hero .sub-copy {
             font-size: 20px;
-            color: var(--text-light);
+            color: rgba(255, 255, 255, 0.9); /* 완전 흰색보다 살짝 투명하게 */
             margin-bottom: 40px;
             font-weight: 700;
         }
@@ -211,6 +239,13 @@
             line-height: 1.3;
         }
         
+        #pricing .pricing-promo-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--point-orange);
+            margin-top: 15px;
+        }
+
         #pricing .pricing-subtitle {
             font-size: 18px;
             color: var(--text-light);
@@ -541,7 +576,8 @@
         <!-- [수정됨] 가격 안내 섹션 -->
         <section id="pricing">
             <div class="container">
-                <h2>브랜디업 베타 출시 기념,<br>파격적인 가격으로 시작하세요.</h2>
+                <h2>브랜디업 베타 출시 기념</h2>
+                <p class="pricing-promo-text">🔥 오직 12월까지! 파격적인 가격으로 시작하세요.</p>
                 
                 <div class="pricing-table-container">
                     <p class="program-description">"진심을 담는 블로거" 집중 관리 프로그램 (매월 5팀)</p>
