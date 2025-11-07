@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>브랜디업 - 진짜 손님을 부르는 진짜 리뷰</title>
 
     <link rel="icon" type="image/png" href="./images/favicon.png">
-    
+
     <!-- Google Fonts: Noto Sans KR -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 
     <!-- Font Awesome 아이콘 라이브러리 CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
         /* ------------------------- */
@@ -58,11 +61,13 @@
             scroll-margin-top: 70px;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             color: var(--main-navy);
             font-weight: 900;
         }
-        
+
         a {
             text-decoration: none;
             color: inherit;
@@ -88,7 +93,7 @@
             align-items: center;
             height: 100%;
         }
-        
+
         .header .logo a {
             display: inline-flex;
             align-items: center;
@@ -98,7 +103,7 @@
         .header .logo img {
             height: 45px;
             width: auto;
-            border-radius: 8px; 
+            border-radius: 8px;
         }
 
         .header .logo span {
@@ -136,8 +141,9 @@
             background-image: url('./images/background.png');
             background-size: cover;
             background-position: center center;
-            background-attachment: fixed; /* 스크롤 시 이미지가 고정되는 효과 */
-            
+            background-attachment: fixed;
+            /* 스크롤 시 이미지가 고정되는 효과 */
+
             height: 100vh;
             min-height: 600px;
             display: flex;
@@ -145,9 +151,11 @@
             align-items: center;
             text-align: center;
             padding-top: 70px;
-            
-            position: relative; /* 오버레이의 기준점 */
-            color: #ffffff; /* 내부 텍스트 기본 색상을 흰색으로 */
+
+            position: relative;
+            /* 오버레이의 기준점 */
+            color: #ffffff;
+            /* 내부 텍스트 기본 색상을 흰색으로 */
         }
 
         /* 다크 오버레이 스타일 */
@@ -158,7 +166,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* 50% 투명도의 검은색 필터 */
+            background-color: rgba(0, 0, 0, 0.5);
+            /* 50% 투명도의 검은색 필터 */
             z-index: 1;
         }
 
@@ -167,18 +176,20 @@
             position: relative;
             z-index: 2;
         }
-        
+
         /* 헤드라인 및 서브카피 색상 변경 */
         #hero h1 {
             font-size: 48px;
             margin-bottom: 20px;
             line-height: 1.4;
-            color: #ffffff; /* 흰색으로 변경 */
+            color: #ffffff;
+            /* 흰색으로 변경 */
         }
 
         #hero .sub-copy {
             font-size: 20px;
-            color: rgba(255, 255, 255, 0.9); /* 완전 흰색보다 살짝 투명하게 */
+            color: rgba(255, 255, 255, 0.9);
+            /* 완전 흰색보다 살짝 투명하게 */
             margin-bottom: 40px;
             font-weight: 700;
         }
@@ -210,7 +221,7 @@
             font-size: 36px;
             margin-bottom: 50px;
         }
-        
+
         #services .service-content {
             max-width: 700px;
             margin: 0 auto;
@@ -220,7 +231,7 @@
             font-size: 18px;
             margin-bottom: 25px;
         }
-        
+
         #services .service-content p:last-child {
             font-weight: 700;
             font-size: 20px;
@@ -238,7 +249,7 @@
             font-size: 36px;
             line-height: 1.3;
         }
-        
+
         #pricing .pricing-promo-text {
             font-size: 22px;
             font-weight: 700;
@@ -251,14 +262,14 @@
             color: var(--text-light);
             margin-top: 10px;
         }
-        
+
         .pricing-table-container {
             max-width: 800px;
             margin: 50px auto 0;
             background-color: #ffffff;
             border-radius: 10px;
             padding: 40px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         }
 
         .program-description {
@@ -274,11 +285,12 @@
             text-align: center;
         }
 
-        #pricing th, #pricing td {
+        #pricing th,
+        #pricing td {
             padding: 20px 15px;
             border-bottom: 1px solid #eee;
         }
-        
+
         #pricing tbody tr:last-child td {
             border-bottom: none;
         }
@@ -289,28 +301,28 @@
             font-size: 14px;
             text-transform: uppercase;
         }
-        
+
         #pricing td {
             font-size: 16px;
         }
-        
+
         /* 프로그램명 스타일 */
         #pricing td:first-child {
             font-weight: 700;
             text-align: center;
             color: var(--main-navy);
         }
-        
+
         /* 정상가 스타일 */
         #pricing td s {
             color: var(--text-light);
         }
-        
+
         /* 베타 특가 스타일 */
         #pricing .special-price-cell {
             font-weight: 700;
         }
-        
+
         #pricing .special-price-cell strong {
             font-size: 24px;
             color: var(--point-orange);
@@ -321,7 +333,7 @@
             font-size: 14px;
             color: var(--point-orange);
         }
-        
+
         /* PDF 다운로드 영역 */
         #pricing .pdf-download-area {
             margin-top: 60px;
@@ -364,13 +376,13 @@
             border-radius: 10px;
             padding: 30px 40px;
             width: 300px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         #contact .contact-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
         #contact .contact-item .icon {
@@ -378,7 +390,7 @@
             color: var(--point-orange);
             margin-bottom: 15px;
         }
-        
+
         #contact .contact-item .icon.kakao-icon {
             color: var(--kakao-text);
             font-size: 38px;
@@ -405,6 +417,7 @@
             font-weight: 700;
             transition: background-color 0.3s ease;
         }
+
         #contact .kakao-btn:hover {
             background-color: #fddc00;
         }
@@ -419,12 +432,12 @@
             text-align: center;
             font-size: 14px;
         }
-        
+
         .footer .footer-content p {
             margin-bottom: 10px;
             line-height: 1.8;
         }
-        
+
         .footer .footer-content .separator {
             margin: 0 10px;
         }
@@ -453,9 +466,9 @@
 
             #hero {
                 /* 모바일에서는 배경 이미지 고정 효과를 해제하여 자연스럽게 스크롤되도록 함 */
-                background-attachment: scroll; 
+                background-attachment: scroll;
             }
-            
+
             #hero h1 {
                 font-size: 36px;
             }
@@ -464,43 +477,57 @@
                 font-size: 18px;
             }
 
-            #services h2, #pricing h2, #contact h2 {
+            #services h2,
+            #pricing h2,
+            #contact h2 {
                 font-size: 28px;
             }
-            
+
             /* [수정] 가격표 반응형 스타일 */
             .pricing-table-container {
                 padding: 20px;
             }
+
             #pricing table {
                 border: 0;
             }
+
             #pricing thead {
-                display: none; /* PC에서만 보이는 헤더 숨김 */
+                display: none;
+                /* PC에서만 보이는 헤더 숨김 */
             }
+
             #pricing tr {
                 display: block;
                 margin-bottom: 20px;
                 border: 1px solid #ddd;
                 border-radius: 5px;
             }
+
             #pricing tr:last-child {
                 margin-bottom: 0;
             }
+
             #pricing td {
                 display: block;
-                text-align: right; /* 값을 오른쪽으로 정렬 */
-                padding-left: 50%; /* 레이블을 위한 공간 확보 */
+                text-align: right;
+                /* 값을 오른쪽으로 정렬 */
+                padding-left: 50%;
+                /* 레이블을 위한 공간 확보 */
                 position: relative;
             }
+
             #pricing td:first-child {
-                text-align: center; /* 첫번째 셀(프로그램명)은 중앙 정렬 */
+                text-align: center;
+                /* 첫번째 셀(프로그램명)은 중앙 정렬 */
                 padding: 15px;
                 background-color: #f8f8f8;
                 border-bottom: 1px solid #ddd;
             }
+
             #pricing td::before {
-                content: attr(data-label); /* data-label 속성값을 가져와 표시 */
+                content: attr(data-label);
+                /* data-label 속성값을 가져와 표시 */
                 position: absolute;
                 left: 15px;
                 width: 45%;
@@ -510,32 +537,43 @@
                 font-weight: 700;
                 color: var(--text-dark);
             }
-            #pricing .special-price-cell strong { font-size: 20px; }
-            #pricing .special-price-cell span { font-size: 12px; }
+
+            #pricing .special-price-cell strong {
+                font-size: 20px;
+            }
+
+            #pricing .special-price-cell span {
+                font-size: 12px;
+            }
 
             /* 나머지 반응형 스타일 */
             #contact .contact-methods {
                 flex-direction: column;
                 align-items: center;
             }
+
             #contact .contact-item {
                 width: 100%;
                 max-width: 350px;
             }
+
             .footer .footer-content p {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
             }
+
             .footer .footer-content .separator {
                 display: none;
             }
+
             .footer .footer-content span {
                 margin-bottom: 5px;
             }
         }
     </style>
 </head>
+
 <body>
 
     <!-- 헤더 -->
@@ -574,6 +612,7 @@
                 <div class="service-content">
                     <p>홍보는 해야겠는데, 막막하시죠?<br>넘쳐나는 광고 상품 속에서 옥석을 가리기 힘드신가요?</p>
                     <p>사장님은 본업에만 집중하세요.<br>진짜 고객을 만드는 진짜 홍보는 브랜디업이 대신하겠습니다.</p>
+                    <p>비즈니스와 인플루언서의 연결! 인지도와 매출 상승에 날개를 달아보세요.</p>
                 </div>
             </div>
         </section>
@@ -583,7 +622,7 @@
             <div class="container">
                 <h2>브랜디업 베타 출시 기념</h2>
                 <p class="pricing-promo-text">🔥 오직 12월까지! 파격적인 가격으로 시작하세요.</p>
-                
+
                 <div class="pricing-table-container">
                     <p class="program-description">"진심을 담는 블로거" 집중 관리 프로그램 (매월 5팀)</p>
                     <table>
@@ -677,4 +716,5 @@
     </footer>
 
 </body>
+
 </html>
