@@ -4,16 +4,16 @@ import hashlib
 import base64
 import requests
 import urllib.parse
+import os
 
-# 네이버 검색광고 API 정보 (본인 것으로 교체)
-ADS_API_KEY = "YOUR_ADS_API_KEY"
-ADS_SECRET_KEY = "YOUR_ADS_SECRET_KEY"
-CUSTOMER_ID = "YOUR_CUSTOMER_ID"
+# 환경변수에서 키 값 가져오기 (보안 설정)
+ADS_API_KEY = os.environ.get("NAVER_ADS_API_KEY")
+ADS_SECRET_KEY = os.environ.get("NAVER_ADS_SECRET_KEY")
+CUSTOMER_ID = os.environ.get("NAVER_CUSTOMER_ID")
+SEARCH_CLIENT_ID = os.environ.get("NAVER_SEARCH_CLIENT_ID")
+SEARCH_CLIENT_SECRET = os.environ.get("NAVER_SEARCH_CLIENT_SECRET")
+
 ADS_BASE_URL = "https://api.naver.com"
-
-# 네이버 검색(개발자센터) API 정보 (본인 것으로 교체)
-SEARCH_CLIENT_ID = "YOUR_CLIENT_ID"
-SEARCH_CLIENT_SECRET = "YOUR_CLIENT_SECRET"
 
 def get_header(method, uri, api_key, secret_key, customer_id):
     timestamp = str(int(time.time() * 1000))
@@ -30,28 +30,35 @@ def get_header(method, uri, api_key, secret_key, customer_id):
     }
 
 def get_keyword_volume(keyword):
-    """검색광고 API를 통해 연관 키워드와 검색량을 가져옴"""
+    """검색광고 API: 연관 키워드 및 검색량 조회"""
+    if not ADS_API_KEY: return [] # 키가 없으면 빈 리스트 반환
+
     uri = "/keywordstool"
     method = "GET"
     headers = get_header(method, uri, ADS_API_KEY, ADS_SECRET_KEY, CUSTOMER_ID)
     
-    # 공백 제거하여 요청
     params = {"hintKeywords": keyword.replace(" ", ""), "showDetail": 1}
-    res = requests.get(ADS_BASE_URL + uri, params=params, headers=headers)
-    
-    if res.status_code == 200:
-        return res.json().get("keywordList", [])
-    else:
-        return []
+    try:
+        res = requests.get(ADS_BASE_URL + uri, params=params, headers=headers)
+        if res.status_code == 200:
+            return res.json().get("keywordList", [])
+    except:
+        pass
+    return []
 
 def get_blog_count(keyword):
-    """네이버 검색 API를 통해 블로그 문서(Total) 수를 가져옴"""
+    """검색 API: 블로그 문서수 조회"""
+    if not SEARCH_CLIENT_ID: return 0
+
     url = f"https://openapi.naver.com/v1/search/blog.json?query={urllib.parse.quote(keyword)}&display=1&sort=sim"
     headers = {
         "X-Naver-Client-Id": SEARCH_CLIENT_ID,
         "X-Naver-Client-Secret": SEARCH_CLIENT_SECRET
     }
-    res = requests.get(url, headers=headers)
-    if res.status_code == 200:
-        return res.json().get("total", 0)
+    try:
+        res = requests.get(url, headers=headers)
+        if res.status_code == 200:
+            return res.json().get("total", 0)
+    except:
+        pass
     return 0
