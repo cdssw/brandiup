@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초간편 상권 키워드 리포터 V2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header .version {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.05rem;
+            opacity: 0.95;
+        }
+
+        .input-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0 20px 0;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #667eea, transparent);
+        }
+
+        .section-divider span {
+            padding: 0 15px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .input-group label .emoji {
+            margin-right: 5px;
+        }
+
+        .input-group label .helper {
+            font-weight: 400;
+            color: #888;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        .input-group select,
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #fafafa;
+        }
+
+        .input-group select:focus,
+        .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+        }
+
+        .input-group input[type="text"]::placeholder {
+            color: #aaa;
+        }
+
+        .tag-input-hint {
+            font-size: 0.85rem;
+            color: #667eea;
+            margin-top: 5px;
+            padding-left: 5px;
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            background: white;
+            border-radius: 12px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 1.7rem;
+            color: #333;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            text-align: center;
+        }
+
+        .section-block {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .section-block.highlight {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5f5 100%);
+            border-left-color: #764ba2;
+        }
+
+        .section-block h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-block.highlight h3 {
+            color: #764ba2;
+        }
+
+        .section-block h3 .emoji {
+            margin-right: 10px;
+            font-size: 1.4rem;
+        }
+
+        .insight-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ffa726;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .insight-box strong {
+            color: #ff6f00;
+        }
+
+        .target-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .demographics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .demo-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.9rem;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .demo-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .demo-item strong {
+            color: #667eea;
+            font-size: 1.2rem;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .keyword-category {
+            margin-bottom: 25px;
+        }
+
+        .keyword-category h4 {
+            color: #555;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            padding-left: 12px;
+            border-left: 3px solid #764ba2;
+        }
+
+        .keyword-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .keyword-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .keyword-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .keyword-link.secondary {
+            background: linear-gradient(135deg, #42a5f5 0%, #478ed1 100%);
+        }
+
+        .keyword-link.secondary:hover {
+            background: linear-gradient(135deg, #478ed1 0%, #42a5f5 100%);
+        }
+
+        .content-ideas {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .content-idea-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #42a5f5;
+        }
+
+        .content-idea-item h5 {
+            color: #333;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .content-idea-item p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .content-idea-item .example {
+            color: #764ba2;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .input-section,
+            .result-section {
+                padding: 20px;
+            }
+
+            .keyword-list {
+                flex-direction: column;
+            }
+
+            .keyword-link {
+                text-align: center;
+            }
+
+            .demographics {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .section-block {
+                padding: 15px;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="version">⚡ V2 ADVANCED</div>
+            <h1>🎯 초간편 상권 키워드 리포터</h1>
+            <p>상권 분석부터 전략적 키워드 생성까지, 원스톱 마케팅 솔루션</p>
+        </div>
+
+        <div class="input-section">
+            <div class="section-divider">
+                <span>📍 기본 정보</span>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label><span class="emoji">🏙️</span>지역 선택 (서울시 구)</label>
+                    <select id="district">
+                        <option value="">구를 선택하세요</option>
+                        <option value="강남구">강남구</option>
+                        <option value="서초구">서초구</option>
+                        <option value="마포구">마포구</option>
+                        <option value="송파구">송파구</option>
+                        <option value="용산구">용산구</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label><span class="emoji">🏘️</span>동 선택</label>
+                    <select id="dong">
+                        <option value="">먼저 구를 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>
+                    <span class="emoji">📍</span>주요 상권/랜드마크
+                    <span class="helper">(선택사항)</span>
+                </label>
+                <input type="text" id="landmark" placeholder="예: 강남역, 코엑스, 홍대입구역">
+                <div class="tag-input-hint">💡 키워드 검색량 향상에 도움이 됩니다</div>
+            </div>
+
+            <div class="section-divider">
+                <span>🍽️ 업종 & 메뉴 정보</span>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label><span class="emoji">📂</span>업종 카테고리</label>
+                    <select id="category">
+                        <option value="">업종을 선택하세요</option>
+                        <option value="한식">한식</option>
+                        <option value="국수/면요리">국수/면요리</option>
+                        <option value="보양식">보양식</option>
+                        <option value="일식">일식</option>
+                        <option value="양식">양식</option>
+                        <option value="카페/디저트">카페/디저트</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label><span class="emoji">🍜</span>대표 메뉴</label>
+                    <input type="text" id="mainMenu" placeholder="예: 닭국수, 수제버거, 아메리카노">
+                </div>
+            </div>
+
+            <div class="input-group full-width">
+                <label>
+                    <span class="emoji">🏷️</span>가게 특징 (태그 형식)
+                </label>
+                <input type="text" id="tags" placeholder="예: #해장 #비오는날 #든든한점심 #몸보신 #부모님과">
+                <div class="tag-input-hint">💡 #으로 구분하여 입력하면 상황별 키워드를 생성합니다</div>
+            </div>
+
+            <button class="btn-generate" onclick="generateReport()">
+                🚀 전략 키워드 리포트 생성
+            </button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <h2 class="result-title" id="resultTitle"></h2>
+
+            <!-- 상권 분석 섹션 -->
+            <div class="section-block">
+                <h3><span class="emoji">📊</span>상권 분석 리포트</h3>
+                <div class="target-info" id="targetInfo"></div>
+                <div class="demographics" id="demographics"></div>
+            </div>
+
+            <!-- 메인 타겟 키워드 -->
+            <div class="section-block highlight">
+                <h3><span class="emoji">🎯</span>메인 타겟 키워드 (볼륨 확보용)</h3>
+                <div id="insightBox"></div>
+
+                <div class="keyword-category">
+                    <h4>📌 카테고리 확장 키워드</h4>
+                    <div class="keyword-list" id="categoryKeywords"></div>
+                </div>
+
+                <div class="keyword-category">
+                    <h4>📌 기본 조합 키워드</h4>
+                    <div class="keyword-list" id="basicKeywords"></div>
+                </div>
+            </div>
+
+            <!-- 세부 공략 키워드 -->
+            <div class="section-block">
+                <h3><span class="emoji">🔍</span>세부 공략 키워드 (전환율 극대화용)</h3>
+
+                <div class="keyword-category">
+                    <h4>📌 목적/상황 기반 키워드</h4>
+                    <div class="keyword-list" id="purposeKeywords"></div>
+                </div>
+
+                <div class="keyword-category">
+                    <h4>📌 타겟층 맞춤 키워드</h4>
+                    <div class="keyword-list" id="targetKeywords"></div>
+                </div>
+            </div>
+
+            <!-- 콘텐츠 제작 아이디어 -->
+            <div class="section-block highlight">
+                <h3><span class="emoji">💡</span>콘텐츠 제작 아이디어 제안</h3>
+                <div class="content-ideas" id="contentIdeas"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 초간편 상권 키워드 리포터 V2 | 소상공인 마케팅 지원 서비스</p>
+        </div>
+    </div>
+
+    <script>
+        // 구-동 매핑 데이터
+        const districtDongMap = {
+            "강남구": ["역삼1동", "역삼2동", "논현1동", "논현2동", "삼성1동", "삼성2동", "대치1동", "청담동", "신사동"],
+            "서초구": ["서초1동", "서초2동", "반포1동", "반포2동", "방배1동", "방배2동", "양재1동"],
+            "마포구": ["공덕동", "아현동", "도화동", "용강동", "대흥동", "염리동", "신수동", "서강동", "서교동", "합정동", "망원1동", "연남동", "성산1동", "상암동"],
+            "송파구": ["풍납1동", "풍납2동", "거여1동", "마천1동", "방이1동", "오금동", "송파1동", "석촌동", "삼전동", "가락본동", "문정1동", "장지동"],
+            "용산구": ["후암동", "용산2가동", "남영동", "청파동", "원효로1동", "원효로2동", "효창동", "용문동", "한강로동", "이촌1동", "이촌2동", "이태원1동", "이태원2동", "한남동", "서빙고동", "보광동"]
+        };
+
+        // 상권 데이터 (동별 유동인구 데이터)
+        const areaData = {
+            "역삼1동": {
+                "20대 여성": 25,
+                "30대 남성": 22,
+                "20대 남성": 18,
+                "30대 여성": 15,
+                "40대 남성": 12,
+                "40대 여성": 8
+            },
+            "논현1동": {
+                "30대 여성": 28,
+                "40대 여성": 20,
+                "30대 남성": 18,
+                "20대 여성": 15,
+                "40대 남성": 12,
+                "50대 여성": 7
+            },
+            "삼성1동": {
+                "30대 남성": 30,
+                "40대 남성": 22,
+                "30대 여성": 18,
+                "20대 남성": 15,
+                "20대 여성": 10,
+                "40대 여성": 5
+            },
+            "서초1동": {
+                "30대 남성": 26,
+                "30대 여성": 24,
+                "40대 남성": 20,
+                "20대 여성": 15,
+                "40대 여성": 10,
+                "20대 남성": 5
+            },
+            "반포1동": {
+                "40대 여성": 25,
+                "30대 여성": 22,
+                "40대 남성": 20,
+                "50대 여성": 15,
+                "30대 남성": 12,
+                "20대 여성": 6
+            },
+            "합정동": {
+                "20대 여성": 32,
+                "20대 남성": 25,
+                "30대 여성": 18,
+                "30대 남성": 15,
+                "40대 여성": 6,
+                "40대 남성": 4
+            },
+            "연남동": {
+                "20대 여성": 30,
+                "30대 여성": 25,
+                "20대 남성": 20,
+                "30대 남성": 15,
+                "40대 여성": 7,
+                "40대 남성": 3
+            },
+            "송파1동": {
+                "30대 여성": 24,
+                "20대 여성": 22,
+                "30대 남성": 20,
+                "40대 여성": 15,
+                "20대 남성": 12,
+                "40대 남성": 7
+            }
+        };
+
+        // 유사 카테고리 키워드 맵 (메뉴별 확장 키워드)
+        const similarKeywords = {
+            "닭국수": {
+                similar: ["닭칼국수", "칼국수", "국수", "초계국수"],
+                volume: "10배"
+            },
+            "닭곰탕": {
+                similar: ["삼계탕", "곰탕", "설렁탕", "국밥"],
+                volume: "8배"
+            },
+            "수제버거": {
+                similar: ["햄버거", "버거", "수제햄버거", "그릴버거"],
+                volume: "12배"
+            },
+            "파스타": {
+                similar: ["스파게티", "까르보나라", "알리오올리오", "크림파스타"],
+                volume: "7배"
+            },
+            "아메리카노": {
+                similar: ["커피", "카페", "원두커피", "핸드드립"],
+                volume: "15배"
+            },
+            "라멘": {
+                similar: ["라면", "일본라멘", "돈코츠라멘", "국물요리"],
+                volume: "9배"
+            },
+            "떡볶이": {
+                similar: ["분식", "즉석떡볶이", "치즈떡볶이", "매운떡볶이"],
+                volume: "11배"
+            }
+        };
+
+        // 업종별 기본 키워드
+        const categoryKeywords = {
+            "한식": ["맛집", "한식당", "백반", "밥집", "한정식"],
+            "국수/면요리": ["국수 맛집", "칼국수", "면요리", "수제비", "국수집"],
+            "보양식": ["보양식 맛집", "삼계탕", "추어탕", "영양식", "보신"],
+            "일식": ["일식 맛집", "초밥", "사시미", "일본요리", "오마카세"],
+            "양식": ["양식 맛집", "레스토랑", "파스타", "스테이크", "브런치"],
+            "카페/디저트": ["카페", "디저트", "커피", "베이커리", "브런치카페"]
+        };
+
+        // 연령대별 선호 키워드
+        const ageKeywords = {
+            "20대": ["데이트", "인스타 감성", "분위기 좋은", "예쁜", "힙한"],
+            "30대": ["모임", "회식", "점심", "저녁", "가성비"],
+            "40대": ["가족 외식", "단골", "정갈한", "깔끔한", "건강한"],
+            "50대": ["조용한", "전통", "정통", "고급", "편안한"]
+        };
+
+        // 구 선택 시 동 목록 업데이트
+        document.getElementById('district').addEventListener('change', function () {
+            const district = this.value;
+            const dongSelect = document.getElementById('dong');
+
+            dongSelect.innerHTML = '<option value="">동을 선택하세요</option>';
+
+            if (district && districtDongMap[district]) {
+                districtDongMap[district].forEach(dong => {
+                    const option = document.createElement('option');
+                    option.value = dong;
+                    option.textContent = dong;
+                    dongSelect.appendChild(option);
+                });
+            }
+        });
+
+        // 리포트 생성 함수
+        function generateReport() {
+            const district = document.getElementById('district').value;
+            const dong = document.getElementById('dong').value;
+            const landmark = document.getElementById('landmark').value.trim();
+            const category = document.getElementById('category').value;
+            const mainMenu = document.getElementById('mainMenu').value.trim();
+            const tagsInput = document.getElementById('tags').value.trim();
+
+            // 필수 입력 검증
+            if (!district || !dong || !category) {
+                alert('지역(구/동)과 업종 카테고리는 필수 입력 항목입니다!');
+                return;
+            }
+
+            // 결과 섹션 표시
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('show');
+
+            // 지역명 설정 (랜드마크 우선, 없으면 동 이름)
+            const locationName = landmark || dong;
+
+            // 제목 설정
+            document.getElementById('resultTitle').textContent =
+                `📍 [${locationName}] 상권 분석 및 전략 키워드 리포트`;
+
+            // === 1. 상권 분석 섹션 ===
+            generateAreaAnalysis(dong);
+
+            // === 2. 메인 타겟 키워드 섹션 ===
+            generateMainKeywords(locationName, mainMenu, category);
+
+            // === 3. 세부 공략 키워드 섹션 ===
+            generateDetailKeywords(locationName, tagsInput, dong, mainMenu, category);
+
+            // === 4. 콘텐츠 아이디어 섹션 ===
+            generateContentIdeas(locationName, mainMenu, tagsInput, category);
+
+            // 결과 섹션으로 스크롤
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 1. 상권 분석 생성
+        function generateAreaAnalysis(dong) {
+            const demographics = areaData[dong] || {
+                "30대 여성": 25,
+                "20대 여성": 20,
+                "30대 남성": 18,
+                "40대 여성": 15,
+                "20대 남성": 12,
+                "40대 남성": 10
+            };
+
+            const topCustomer = Object.entries(demographics).sort((a, b) => b[1] - a[1])[0];
+            const targetInfoHtml = `
+                <strong>${dong}</strong>의 핵심 고객층은 
+                <strong style="color: #764ba2; font-size: 1.1rem;">${topCustomer[0]} (${topCustomer[1]}%)</strong>입니다.<br>
+                이 데이터를 기반으로 타겟 맞춤 키워드를 제안합니다.
+            `;
+            document.getElementById('targetInfo').innerHTML = targetInfoHtml;
+
+            const demographicsHtml = Object.entries(demographics)
+                .sort((a, b) => b[1] - a[1])
+                .map(([demo, percent]) => `
+                    <div class="demo-item">
+                        <div>${demo}</div>
+                        <strong>${percent}%</strong>
+                    </div>
+                `).join('');
+            document.getElementById('demographics').innerHTML = demographicsHtml;
+        }
+
+        // 2. 메인 타겟 키워드 생성
+        function generateMainKeywords(locationName, mainMenu, category) {
+            // 인사이트 박스
+            let insightHtml = '';
+            if (mainMenu && similarKeywords[mainMenu]) {
+                const menuData = similarKeywords[mainMenu];
+                insightHtml = `
+                    <div class="insight-box">
+                        💡 <strong>검색량 인사이트:</strong> 
+                        고객들은 '${mainMenu}'보다 
+                        <strong>'${menuData.similar[0]}'를 약 ${menuData.volume} 더 많이 검색</strong>합니다! 
+                        카테고리 확장 키워드로 더 많은 고객에게 노출되세요.
+                    </div>
+                `;
+            }
+            document.getElementById('insightBox').innerHTML = insightHtml;
+
+            // A. 카테고리 확장 키워드
+            let categoryKeywordsHtml = '';
+            if (mainMenu && similarKeywords[mainMenu]) {
+                const similar = similarKeywords[mainMenu].similar;
+                categoryKeywordsHtml = similar.map(keyword =>
+                    createKeywordLink(`${locationName} ${keyword}`)
+                ).join('');
+            } else if (mainMenu) {
+                categoryKeywordsHtml = createKeywordLink(`${locationName} ${mainMenu}`);
+            }
+
+            if (!categoryKeywordsHtml) {
+                categoryKeywordsHtml = '<p style="color: #888;">대표 메뉴를 입력하면 카테고리 확장 키워드가 생성됩니다.</p>';
+            }
+            document.getElementById('categoryKeywords').innerHTML = categoryKeywordsHtml;
+
+            // B. 기본 조합 키워드
+            const basicKeywordsArray = categoryKeywords[category] || [];
+            const basicKeywordsHtml = basicKeywordsArray.map(keyword =>
+                createKeywordLink(`${locationName} ${keyword}`)
+            ).join('');
+            document.getElementById('basicKeywords').innerHTML = basicKeywordsHtml;
+        }
+
+        // 3. 세부 공략 키워드 생성
+        function generateDetailKeywords(locationName, tagsInput, dong, mainMenu, category) {
+            // A. 목적/상황 기반 키워드
+            let purposeKeywordsHtml = '';
+            if (tagsInput) {
+                const tags = tagsInput.split('#').filter(tag => tag.trim());
+                const purposeKeywordsArray = [];
+
+                tags.forEach(tag => {
+                    const cleanTag = tag.trim();
+                    purposeKeywordsArray.push(`${locationName} ${cleanTag}`);
+                    purposeKeywordsArray.push(`${locationName} ${cleanTag} 맛집`);
+                    if (mainMenu) {
+                        purposeKeywordsArray.push(`${locationName} ${cleanTag} ${mainMenu}`);
+                    }
+                });
+
+                purposeKeywordsHtml = purposeKeywordsArray.slice(0, 12).map(keyword =>
+                    createKeywordLink(keyword, true)
+                ).join('');
+            } else {
+                purposeKeywordsHtml = '<p style="color: #888;">가게 특징 태그를 입력하면 목적/상황 기반 키워드가 생성됩니다.</p>';
+            }
+            document.getElementById('purposeKeywords').innerHTML = purposeKeywordsHtml;
+
+            // B. 타겟층 맞춤 키워드
+            const demographics = areaData[dong] || {};
+            const targetKeywordsArray = [];
+
+            Object.keys(demographics).slice(0, 3).forEach(ageGroup => {
+                const age = ageGroup.split('대')[0] + '대';
+                const keywords = ageKeywords[age] || [];
+
+                keywords.slice(0, 2).forEach(keyword => {
+                    targetKeywordsArray.push(`${locationName} ${keyword} ${category}`);
+                    if (mainMenu) {
+                        targetKeywordsArray.push(`${locationName} ${keyword} ${mainMenu}`);
+                    }
+                });
+            });
+
+            const targetKeywordsHtml = targetKeywordsArray.slice(0, 10).map(keyword =>
+                createKeywordLink(keyword, true)
+            ).join('');
+            document.getElementById('targetKeywords').innerHTML = targetKeywordsHtml;
+        }
+
+        // 4. 콘텐츠 아이디어 생성
+        function generateContentIdeas(locationName, mainMenu, tagsInput, category) {
+            const ideas = [];
+            const tags = tagsInput ? tagsInput.split('#').filter(tag => tag.trim()) : [];
+
+            // 아이디어 1: 상황 기반 콘텐츠
+            if (tags.length > 0 && mainMenu) {
+                const tag = tags[0].trim();
+                ideas.push({
+                    title: "상황 중심 콘텐츠",
+                    example: `"${tag} 때, ${locationName}에서 ${mainMenu} 먹으러 가야 하는 이유"`
+                });
+            }
+
+            // 아이디어 2: 비교/큐레이션 콘텐츠
+            if (mainMenu && similarKeywords[mainMenu]) {
+                const similar = similarKeywords[mainMenu].similar[0];
+                ideas.push({
+                    title: "비교 큐레이션 콘텐츠",
+                    example: `"${locationName} ${similar} 맛집 BEST 5, ${mainMenu} 전문점은 여기!"`
+                });
+            }
+
+            // 아이디어 3: 타겟 맞춤 콘텐츠
+            ideas.push({
+                title: "타겟층 맞춤 콘텐츠",
+                example: `"${locationName} ${category} 데이트 코스 추천 - ${mainMenu || '맛집'}부터 카페까지"`
+            });
+
+            // 아이디어 4: 시즌/이벤트 콘텐츠
+            if (mainMenu) {
+                ideas.push({
+                    title: "시즌/이벤트 콘텐츠",
+                    example: `"요즘 ${locationName}에서 핫한 ${mainMenu}, 지금 가야 하는 이유"`
+                });
+            }
+
+            const ideasHtml = ideas.map(idea => `
+                <div class="content-idea-item">
+                    <h5>📝 ${idea.title}</h5>
+                    <p>제목 예시: <span class="example">${idea.example}</span></p>
+                </div>
+            `).join('');
+
+            document.getElementById('contentIdeas').innerHTML = ideasHtml;
+        }
+
+        // 네이버 검색 링크 생성 함수
+        function createKeywordLink(keyword, isSecondary = false) {
+            const encodedKeyword = encodeURIComponent(keyword);
+            const naverSearchUrl = `https://search.naver.com/search.naver?query=${encodedKeyword}`;
+            const className = isSecondary ? 'keyword-link secondary' : 'keyword-link';
+            return `<a href="${naverSearchUrl}" target="_blank" class="${className}">${keyword}</a>`;
+        }
+    </script>
+</body>
+
+</html>
