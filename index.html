@@ -116,6 +116,8 @@
         .header .main-nav ul {
             display: flex;
             list-style: none;
+            align-items: center;
+            /* 메뉴 수직 정렬 */
         }
 
         .header .main-nav li {
@@ -131,6 +133,26 @@
 
         .header .main-nav a:hover {
             color: var(--point-orange);
+        }
+
+        /* [추가] 직원용 버튼 스타일 */
+        .btn-staff {
+            background-color: var(--main-navy);
+            color: #ffffff !important;
+            /* a태그 색상 덮어쓰기 */
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px !important;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-staff:hover {
+            background-color: #003366;
+            /* 호버 시 약간 밝게 */
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         /* ------------------------- */
@@ -460,6 +482,8 @@
                 padding: 60px 0;
             }
 
+            /* [수정] 모바일에서도 직원 버튼 보이게 하려면 display: none 제거 */
+            /* 현재 디자인상 메뉴가 너무 많으면 깨질 수 있어 일단 숨김 처리 유지 */
             .header .main-nav {
                 display: none;
             }
@@ -590,6 +614,12 @@
                     <li><a href="#services">서비스 소개</a></li>
                     <li><a href="#pricing">가격 안내</a></li>
                     <li><a href="#contact">문의하기</a></li>
+                    <!-- [추가] 직원용 분석시스템 버튼 -->
+                    <li>
+                        <a href="https://analysis.brandiup.com" target="_blank" class="btn-staff">
+                            <i class="fa-solid fa-lock"></i> 직원용 시스템
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
