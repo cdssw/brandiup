@@ -1,7 +1,15 @@
 [theme]
 base="light"
-primaryColor="#1E88E5"
+primaryColor="#153d63"
 backgroundColor="#FFFFFF"
-secondaryBackgroundColor="#F0F2F6"
+secondaryBackgroundColor="#F0F4F8"
 textColor="#333333"
 font="sans serif"
+
+# [여기부터 추가하세요]
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+address = "0.0.0.0"
+port = 8501
