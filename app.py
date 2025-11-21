@@ -6,7 +6,8 @@ import os
 import base64
 import logging
 import altair as alt
-from utils import extract_keyword_materials, generate_and_validate_keywords, get_blog_search_result
+from datetime import datetime
+from utils import extract_keyword_materials, generate_and_validate_keywords, get_blog_search_result, get_current_season
 from data_loader import (
     load_population_data, get_sido_list, get_sigungu_list, get_dong_list,
     aggregate_population_data, get_persona_from_aggregated
@@ -30,7 +31,7 @@ def get_base64_of_bin_file(bin_file):
     except:
         return ""
 
-# --- CSS 디자인 ---
+# --- CSS 디자인 (강화) ---
 st.markdown("""
 <style>
     /* 기본 설정 */
@@ -94,6 +95,19 @@ st.markdown("""
         color: #153d63;
     }
 
+    /* 계절 배지 */
+    .season-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%);
+        color: #333;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 14px;
+        margin-left: 15px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
     /* 카드 스타일 */
     .pro-card {
         background: white !important;
@@ -133,6 +147,18 @@ st.markdown("""
         font-weight: 700;
         color: #FF9800;
         margin-top: 8px;
+    }
+
+    /* 페르소나 인사이트 박스 */
+    .persona-insight-box {
+        background: linear-gradient(135deg, #E8EAF6 0%, #C5CAE9 100%);
+        border-left: 5px solid #3F51B5;
+        padding: 18px;
+        border-radius: 10px;
+        margin: 15px 0;
+        font-size: 15px;
+        line-height: 1.6;
+        color: #333;
     }
 
     /* 키워드 아이템 */
@@ -188,26 +214,194 @@ st.markdown("""
         background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
         color: #2E7D32;
     }
-    .tag-related {
-        background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
-        color: #6A1B9A;
+
+    /* 경쟁사 분석 카드 */
+    .competitor-card {
+        background: white;
+        border: 2px solid #FFE0B2;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .competitor-header {
+        font-size: 16px;
+        font-weight: 700;
+        color: #153d63;
+        margin-bottom: 10px;
+    }
+    .competitor-level {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-left: 10px;
+    }
+    .level-low { background: #C8E6C9; color: #2E7D32; }
+    .level-medium { background: #FFF9C4; color: #F57F17; }
+    .level-high { background: #FFCDD2; color: #C62828; }
+    
+    .competitor-blog-item {
+        background: #f8f9fa;
+        padding: 10px 12px;
+        border-radius: 6px;
+        margin: 8px 0;
+        font-size: 13px;
+        border-left: 3px solid #FF9800;
     }
 
-    /* 아이디어 박스 */
-    .idea-card {
+    /* 전략 추천 카드 */
+    .strategy-card {
         background: white;
         border: 2px solid #e5e7eb;
-        padding: 18px;
-        border-radius: 10px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
         transition: all 0.3s;
     }
-    .idea-card:hover {
+    .strategy-card:hover {
         border-color: #153d63;
-        box-shadow: 0 4px 10px rgba(21, 61, 99, 0.1);
+        box-shadow: 0 4px 12px rgba(21, 61, 99, 0.1);
     }
+    .strategy-priority {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    .priority-HIGH { background: #FFCDD2; color: #C62828; }
+    .priority-MEDIUM { background: #FFF9C4; color: #F57F17; }
+    .priority-STRATEGIC { background: #E1BEE7; color: #6A1B9A; }
+    .priority-SEASONAL { background: #FFE0B2; color: #E65100; }
+    .priority-TARGET { background: #BBDEFB; color: #1565C0; }
     
+    .strategy-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #153d63;
+        margin-bottom: 8px;
+    }
+    .strategy-desc {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+    .strategy-action {
+        background: #E3F2FD;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    .strategy-result {
+        font-size: 13px;
+        color: #2E7D32;
+        font-weight: 600;
+    }
+
+    /* 실행 계획 타임라인 */
+    .timeline-container {
+        position: relative;
+        padding-left: 40px;
+    }
+    .timeline-item {
+        background: white;
+        border: 2px solid #e5e7eb;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -40px;
+        top: 20px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #153d63;
+        border: 4px solid white;
+        box-shadow: 0 0 0 2px #153d63;
+    }
+    .timeline-month {
+        font-size: 18px;
+        font-weight: 700;
+        color: #153d63;
+        margin-bottom: 8px;
+    }
+    .timeline-focus {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 12px;
+    }
+    .timeline-actions {
+        list-style: none;
+        padding: 0;
+    }
+    .timeline-actions li {
+        padding: 6px 0 6px 20px;
+        position: relative;
+        font-size: 14px;
+        color: #333;
+    }
+    .timeline-actions li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #2E7D32;
+        font-weight: 700;
+    }
+
+    /* 콘텐츠 아이디어 카드 */
+    .content-idea-card {
+        background: white;
+        border: 2px solid #e5e7eb;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+    }
+    .content-idea-card:hover {
+        border-color: #153d63;
+        box-shadow: 0 4px 12px rgba(21, 61, 99, 0.1);
+    }
+    .content-type-badge {
+        display: inline-block;
+        background: #153d63;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    .content-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #764ba2;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    .content-reason {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    .content-guide {
+        background: #F8F9FF;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #333;
+        line-height: 1.6;
+    }
+
     /* 네이버 링크 */
     a.naver-link {
         text-decoration: none;
@@ -251,7 +445,7 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
-    /* [수정] 로딩 표시 */
+    /* 로딩 표시 */
     .loading-container {
         display: flex;
         flex-direction: column;
@@ -318,8 +512,8 @@ with st.sidebar:
     
     products = st.text_input(
         "🍜 대표 메뉴",
-        "닭국수",
-        help="주력 메뉴를 입력하세요 (콤마로 구분 가능)"
+        "닭국수, 닭도리탕, 닭곰탕",
+        help="주력 메뉴를 입력하세요 (콤마로 구분)"
     )
     
     tags_input = st.text_input(
@@ -361,12 +555,19 @@ if run_btn:
             img_b64 = get_base64_of_bin_file(logo_path)
             img_html = f'<img src="data:image/png;base64,{img_b64}" class="main-title-logo">'
         
+        current_season = get_current_season()
+        current_date = datetime.now().strftime("%Y년 %m월 %d일")
+        
         st.markdown(
             f"""<div style="display:flex; align-items:center; margin-bottom:25px;">
                 {img_html}
                 <h1 style="margin:0; padding:0; font-size:2.2rem; color:#153d63;">
                     Brandiup 상권 분석 리포트
                 </h1>
+                <span class="season-badge">{current_season} 시즌 🍂</span>
+            </div>
+            <div style="text-align:right; color:#666; font-size:14px; margin-bottom:20px;">
+                분석일: {current_date}
             </div>""",
             unsafe_allow_html=True
         )
@@ -404,20 +605,19 @@ if run_btn:
             </div>
         </div>""", unsafe_allow_html=True)
         
-        # [수정 3] 인구 차트 - container 제거
+        # 인구 차트
         if agg_data:
             chart_df = pd.DataFrame.from_dict(agg_data, orient='index').reset_index()
             chart_df.columns = ['연령대', '남성', '여성']
             chart_long = pd.melt(chart_df, id_vars=['연령대'], var_name='성별', value_name='인구수')
             
-            # [수정 1] Y축 포맷 완전 수정 - labelExpr 사용
             c = alt.Chart(chart_long).mark_bar().encode(
                 x=alt.X('연령대', axis=alt.Axis(labelAngle=0, title=None)),
                 y=alt.Y(
                     '인구수', 
                     axis=alt.Axis(
                         title='인구수 (명)',
-                        labelExpr="format(datum.value, ',.0f')"  # 과학적 표기법 방지
+                        labelExpr="format(datum.value, ',.0f')"
                     )
                 ),
                 color=alt.Color(
@@ -443,7 +643,7 @@ if run_btn:
             unsafe_allow_html=True
         )
         
-        # [수정 2] 로딩 표시 - 완전 가운데 정렬
+        # 로딩 표시
         progress_placeholder = st.empty()
         
         with progress_placeholder.container():
@@ -464,22 +664,33 @@ if run_btn:
                 st.markdown("""
                 <div class="loading-container">
                     <div class="loading-spinner"></div>
-                    <div class="loading-text">📡 네이버 API로 검색량을 확인하고 있습니다...</div>
+                    <div class="loading-text">📡 네이버 API로 검색량 & 경쟁사를 분석하고 있습니다...</div>
                 </div>
                 """, unsafe_allow_html=True)
             
-            # Step 2: 키워드 검증
-            report = generate_and_validate_keywords(loc_str, products, tags_input, materials)
+            # Step 2: 키워드 검증 + 경쟁사 분석
+            report = generate_and_validate_keywords(
+                loc_str, products, tags_input, materials, persona
+            )
             
             progress_placeholder.empty()
             
             # 인사이트 박스
-            insight_text = materials.get('insight', '데이터 분석 기반의 전략 제안입니다.')
+            insight_text = materials.get("insight", "데이터 분석 기반의 전략 제안입니다.")
             st.markdown(f"""
             <div class="insight-box">
-                💡 <strong>AI Insight:</strong> {insight_text}
+                💡 <strong>AI Insight ({current_season} 시즌):</strong> {insight_text}
             </div>
             """, unsafe_allow_html=True)
+            
+            # 페르소나 인사이트
+            persona_insight = materials.get("persona_insight", "")
+            if persona_insight:
+                st.markdown(f"""
+                <div class="persona-insight-box">
+                    👥 <strong>타겟 고객 분석:</strong> {persona_insight}
+                </div>
+                """, unsafe_allow_html=True)
             
             # 키워드 결과 출력
             col_main, col_detail = st.columns(2)
@@ -519,7 +730,7 @@ if run_btn:
                         </div>
                         """, unsafe_allow_html=True)
                 else:
-                    st.warning("⚠️ 조건에 맞는 메인 키워드를 찾지 못했습니다. 더 넓은 지역명이나 일반적인 메뉴명을 시도해보세요.")
+                    st.warning("⚠️ 조건에 맞는 메인 키워드를 찾지 못했습니다.")
 
             # B. 세부 공략 키워드
             with col_detail:
@@ -557,53 +768,139 @@ if run_btn:
                         """, unsafe_allow_html=True)
                 else:
                     st.info("구체적인 세부 키워드를 찾지 못했습니다.")
-            
-            # C. 연관 키워드 (보너스)
-            if report.get('related_keywords'):
-                st.markdown("#### ✨ 보너스 연관 키워드")
-                st.caption("네이버 API가 추천한 추가 키워드입니다.")
-                
-                cols_related = st.columns(3)
-                for idx, item in enumerate(report['related_keywords']):
-                    with cols_related[idx % 3]:
-                        naver_url = f"https://search.naver.com/search.naver?query={item['keyword']}"
-                        st.markdown(f"""
-                        <div class="keyword-item">
-                            <div>
-                                <span class="kwd-text" style="font-size:14px;">{item['keyword']}</span>
-                            </div>
-                            <div>
-                                <span class="kwd-vol">⭐ {item['volume']:,}</span>
-                                <a href="{naver_url}" target="_blank" class="naver-link">→</a>
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
 
-            # ===== SECTION 3: 콘텐츠 아이디어 =====
-            st.markdown(
-                f"""<div class='section-header-container'>
-                    <span class='section-badge'>03</span>
-                    <span class='section-title-text'>콘텐츠 제작 아이디어</span>
-                </div>""",
-                unsafe_allow_html=True
-            )
-            
-            if report['content_ideas']:
-                cols_idea = st.columns(len(report['content_ideas']))
-                for idx, idea in enumerate(report['content_ideas']):
-                    with cols_idea[idx]:
-                        st.markdown(f"""
-                        <div class="idea-card">
-                            <h5 style="margin:0 0 12px 0; color:#153d63; font-size:15px;">
-                                💡 아이디어 {idx+1}
-                            </h5>
-                            <div style="font-size:14px; color:#555; line-height:1.6;">
-                                {idea}
-                            </div>
+            # ===== SECTION 3: 경쟁사 분석 =====
+            if report.get('competitor_analysis'):
+                st.markdown(
+                    f"""<div class='section-header-container' style='margin-top:40px;'>
+                        <span class='section-badge'>03</span>
+                        <span class='section-title-text'>경쟁사 블로그 분석</span>
+                    </div>""",
+                    unsafe_allow_html=True
+                )
+                
+                st.markdown("**💡 이 분석을 통해 경쟁 강도를 파악하고 차별화 전략을 세울 수 있습니다.**")
+                
+                for comp in report['competitor_analysis']:
+                    analysis = comp['analysis']
+                    level_class = f"level-{analysis['competition_level']}"
+                    level_text = {
+                        'low': '경쟁 약함 ✅',
+                        'medium': '중간 경쟁 ⚠️',
+                        'high': '경쟁 치열 🔥'
+                    }.get(analysis['competition_level'], '분석중')
+                    
+                    st.markdown(f"""
+                    <div class="competitor-card">
+                        <div class="competitor-header">
+                            🔍 '{comp['keyword']}' 키워드 분석
+                            <span class="competitor-level {level_class}">{level_text}</span>
                         </div>
-                        """, unsafe_allow_html=True)
-            else:
-                st.info("콘텐츠 아이디어를 생성하지 못했습니다.")
+                        <div style="margin:15px 0;">
+                            <strong>총 블로그 포스팅:</strong> {analysis['total_posts']:,}개<br>
+                            <strong>전략 제안:</strong> {analysis['strategy_insight']}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    if analysis['top_competitors']:
+                        with st.expander(f"상위 노출 블로그 보기 ({len(analysis['top_competitors'])}개)"):
+                            for blog in analysis['top_competitors']:
+                                st.markdown(f"""
+                                <div class="competitor-blog-item">
+                                    <strong>{blog['rank']}위:</strong> {blog['title']}<br>
+                                    <small>작성자: {blog['blogger']} | 날짜: {blog['date']}</small>
+                                </div>
+                                """, unsafe_allow_html=True)
+
+            # ===== SECTION 4: 전략 추천 =====
+            if report.get('strategic_recommendations'):
+                st.markdown(
+                    f"""<div class='section-header-container' style='margin-top:40px;'>
+                        <span class='section-badge'>04</span>
+                        <span class='section-title-text'>맞춤 전략 추천</span>
+                    </div>""",
+                    unsafe_allow_html=True
+                )
+                
+                st.markdown("**💼 이 전략대로만 실행하시면 3개월 내 결과를 보실 수 있습니다.**")
+                
+                for strategy in report['strategic_recommendations']:
+                    priority_class = f"priority-{strategy['priority']}"
+                    
+                    st.markdown(f"""
+                    <div class="strategy-card">
+                        <span class="strategy-priority {priority_class}">{strategy['priority']} 우선순위</span>
+                        <div class="strategy-title">🎯 {strategy['strategy']}</div>
+                        <div class="strategy-desc">{strategy['description']}</div>
+                        <div class="strategy-action">
+                            <strong>실행 방법:</strong> {strategy['action']}
+                        </div>
+                        <div class="strategy-result">
+                            📈 예상 결과: {strategy['expected_result']}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            # ===== SECTION 5: 3개월 실행 계획 =====
+            if report.get('action_plan'):
+                st.markdown(
+                    f"""<div class='section-header-container' style='margin-top:40px;'>
+                        <span class='section-badge'>05</span>
+                        <span class='section-title-text'>3개월 실행 로드맵</span>
+                    </div>""",
+                    unsafe_allow_html=True
+                )
+                
+                action_plan = report['action_plan']
+                
+                st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
+                
+                for month_key in ['month_1', 'month_2', 'month_3']:
+                    month_data = action_plan.get(month_key, {})
+                    month_num = month_key.split('_')[1]
+                    
+                    actions_html = ''.join([f"<li>{action}</li>" for action in month_data.get('actions', [])])
+                    
+                    st.markdown(f"""
+                    <div class="timeline-item">
+                        <div class="timeline-month">📅 {month_num}개월차</div>
+                        <div class="timeline-focus"><strong>핵심 목표:</strong> {month_data.get('focus', '')}</div>
+                        <ul class="timeline-actions">
+                            {actions_html}
+                        </ul>
+                        <div style="margin-top:12px; padding:10px; background:#E8F5E9; border-radius:6px; font-size:13px; color:#2E7D32;">
+                            <strong>✅ 예상 성과:</strong> {month_data.get('expected', '')}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            # ===== SECTION 6: 콘텐츠 아이디어 =====
+            if report.get('content_ideas'):
+                st.markdown(
+                    f"""<div class='section-header-container' style='margin-top:40px;'>
+                        <span class='section-badge'>06</span>
+                        <span class='section-title-text'>콘텐츠 제작 가이드</span>
+                    </div>""",
+                    unsafe_allow_html=True
+                )
+                
+                st.markdown("**✍️ 바로 사용 가능한 블로그/SNS 콘텐츠 아이디어입니다.**")
+                
+                for idea in report['content_ideas']:
+                    st.markdown(f"""
+                    <div class="content-idea-card">
+                        <span class="content-type-badge">{idea['type']}</span>
+                        <div class="content-title">{idea['title']}</div>
+                        <div class="content-reason">📊 {idea['reason']}</div>
+                        <div class="content-guide">
+                            <strong>📝 작성 가이드:</strong><br>
+                            {idea.get('content_guide', '자유롭게 작성하세요')}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
             
         else:
             progress_placeholder.empty()
