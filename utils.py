@@ -5,8 +5,12 @@ import base64
 import requests
 import urllib.parse
 import os
+from dotenv import load_dotenv # 추가된 부분
 
-# 환경변수에서 키 값 가져오기 (보안 설정)
+# .env 파일이 있으면 로드 (로컬 개발용)
+load_dotenv()
+
+# 환경변수 가져오기 (로컬에서는 .env에서, Docker에서는 -e 옵션에서 가져옴)
 ADS_API_KEY = os.environ.get("NAVER_ADS_API_KEY")
 ADS_SECRET_KEY = os.environ.get("NAVER_ADS_SECRET_KEY")
 CUSTOMER_ID = os.environ.get("NAVER_CUSTOMER_ID")
