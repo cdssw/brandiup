@@ -22,6 +22,53 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ------------------------------------------------------------------
+# [보안] 비밀번호 인증 로직 (여기서부터 복사해서 넣으세요)
+# ------------------------------------------------------------------
+def check_password():
+    """비밀번호 확인 함수"""
+    
+    def password_entered():
+        # 사용자가 입력한 비번이 설정된 비번과 같은지 확인
+        if st.session_state["password"] == st.secrets["password"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # 입력창 초기화
+        else:
+            st.session_state["password_correct"] = False
+
+    # 1. 인증 통과 상태면 True 반환
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # 2. 로그인 화면 UI
+    logo_path = "images/logo.png"
+    if os.path.exists(logo_path):
+        with open(logo_path, "rb") as f:
+            img_data = f.read()
+        b64_img = base64.b64encode(img_data).decode()
+        st.markdown(f"""
+        <div style="text-align: center; margin-top: 100px;">
+            <img src="data:image/png;base64,{b64_img}" style="width: 80px; border-radius: 15px; margin-bottom: 20px;">
+            <h2 style="color: #153d63;">Staff Login</h2>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        st.text_input("Password", type="password", on_change=password_entered, key="password")
+        
+        # [수정된 부분] 비번이 틀렸다는 표시는 '입력을 시도했고(False 상태)'일 때만 띄움
+        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+            st.error("⛔ 비밀번호가 틀렸습니다.")
+            
+    return False
+
+if not check_password():
+    st.stop() # 비밀번호 틀리면 여기서 코드 실행 중단 (아래 내용 안 보임)
+# ------------------------------------------------------------------
+# [보안] 끝
+# ------------------------------------------------------------------
+
 def get_base64_of_bin_file(bin_file):
     """이미지를 base64로 인코딩"""
     try:
