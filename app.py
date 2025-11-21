@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import json
 import time
-import re
 import os
 import base64
 import logging
@@ -14,15 +13,24 @@ from data_loader import (
 )
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-st.set_page_config(page_title="Brandiup 키워드 전략 시스템", layout="wide")
+st.set_page_config(
+    page_title="Brandiup 키워드 전략 시스템", 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+    """이미지를 base64로 인코딩"""
+    try:
+        with open(bin_file, 'rb') as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except:
+        return ""
 
-# --- CSS 디자인 (브랜디업 #153d63 적용) ---
+# --- CSS 디자인 ---
 st.markdown("""
 <style>
     /* 기본 설정 */
@@ -33,290 +41,582 @@ st.markdown("""
 
     /* 버튼 */
     div.stButton > button {
-        background-color: #153d63 !important; color: white !important; border: none !important; width: 100%;
+        background: linear-gradient(135deg, #153d63 0%, #1a5280 100%) !important;
+        color: white !important;
+        border: none !important;
+        width: 100%;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s;
     }
-    div.stButton > button:hover { background-color: #102a44 !important; color: white !important; }
+    div.stButton > button:hover {
+        background: linear-gradient(135deg, #102a44 0%, #153d63 100%) !important;
+        box-shadow: 0 4px 12px rgba(21, 61, 99, 0.3);
+        transform: translateY(-2px);
+    }
 
     /* 인사이트 박스 */
     .insight-box {
-        background-color: #F0F4F8;
-        border-left: 5px solid #153d63;
+        background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+        border-left: 5px solid #FF9800;
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 10px;
         color: #333;
         margin-bottom: 25px;
         font-size: 16px;
-        line-height: 1.6;
+        line-height: 1.7;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     /* 섹션 헤더 */
     .section-header-container {
         display: flex;
         align-items: center;
-        margin-top: 30px;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #f0f2f6;
-        padding-bottom: 10px;
+        margin-top: 35px;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #153d63;
+        padding-bottom: 12px;
     }
     .section-badge {
-        background-color: #153d63;
+        background: linear-gradient(135deg, #153d63 0%, #1a5280 100%);
         color: white;
-        padding: 4px 12px;
+        padding: 6px 14px;
         border-radius: 20px;
         font-weight: 700;
         font-size: 14px;
         margin-right: 12px;
+        box-shadow: 0 2px 6px rgba(21, 61, 99, 0.3);
     }
     .section-title-text {
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 800;
-        color: #333;
+        color: #153d63;
     }
 
     /* 카드 스타일 */
     .pro-card {
-        background-color: #ffffff !important;
-        padding: 20px;
+        background: white !important;
+        padding: 25px;
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        border: 1px solid #e0e0e0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 1px solid #e5e7eb;
         margin-bottom: 20px;
-        height: 100%;
-        color: #333;
+        transition: all 0.3s;
     }
-    .card-header { font-size: 13px; font-weight: 700; color: #666; margin-bottom: 8px; }
-    .card-title { font-size: 24px; font-weight: 800; color: #153d63 !important; margin-bottom: 10px; }
-    .card-sub-metric { font-size: 14px; color: #555; line-height: 1.4; }
-    .total-pop { font-size: 18px; font-weight: bold; color: #333; margin-top: 5px; }
-
-    /* 키워드 리스트 스타일 */
-    .keyword-item {
-        background-color: white;
-        border: 1px solid #ddd;
-        padding: 12px 15px;
-        border-radius: 8px;
+    .pro-card:hover {
+        box-shadow: 0 6px 16px rgba(21, 61, 99, 0.15);
+        transform: translateY(-2px);
+    }
+    .card-header {
+        font-size: 12px;
+        font-weight: 700;
+        color: #999;
+        letter-spacing: 0.5px;
         margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+    .card-title {
+        font-size: 28px;
+        font-weight: 800;
+        color: #153d63 !important;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    .card-sub-metric {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.5;
+    }
+    .total-pop {
+        font-size: 20px;
+        font-weight: 700;
+        color: #FF9800;
+        margin-top: 8px;
+    }
+
+    /* 키워드 아이템 */
+    .keyword-item {
+        background: white;
+        border: 2px solid #e5e7eb;
+        padding: 14px 16px;
+        border-radius: 10px;
+        margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        transition: box-shadow 0.2s;
+        transition: all 0.3s;
     }
     .keyword-item:hover {
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(21, 61, 99, 0.15);
         border-color: #153d63;
+        transform: translateX(4px);
     }
-    .kwd-text { font-weight: 700; color: #333; font-size: 16px; }
-    .kwd-vol { font-size: 14px; color: #666; }
+    .kwd-text {
+        font-weight: 700;
+        color: #333;
+        font-size: 16px;
+    }
+    .kwd-vol {
+        font-size: 14px;
+        color: #666;
+        font-weight: 600;
+    }
+    .kwd-comp {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-weight: 700;
+        margin-left: 8px;
+        text-transform: uppercase;
+    }
+    .comp-low { background: #C8E6C9; color: #2E7D32; }
+    .comp-medium { background: #FFF9C4; color: #F57F17; }
+    .comp-high { background: #FFCDD2; color: #C62828; }
     .kwd-tag {
-        font-size: 12px; padding: 3px 8px; border-radius: 12px; font-weight: bold; margin-left: 10px;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 700;
+        margin-left: 10px;
     }
-    .tag-main { background-color: #E3F2FD; color: #1565C0; }
-    .tag-niche { background-color: #E8F5E9; color: #2E7D32; }
+    .tag-main {
+        background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+        color: #1565C0;
+    }
+    .tag-conversion {
+        background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+        color: #2E7D32;
+    }
+    .tag-related {
+        background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+        color: #6A1B9A;
+    }
 
     /* 아이디어 박스 */
     .idea-card {
-        background-color: #fff;
-        border: 1px solid #eee;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        background: white;
+        border: 2px solid #e5e7eb;
+        padding: 18px;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        transition: all 0.3s;
+    }
+    .idea-card:hover {
+        border-color: #153d63;
+        box-shadow: 0 4px 10px rgba(21, 61, 99, 0.1);
     }
     
     /* 네이버 링크 */
     a.naver-link {
-        text-decoration: none; color: #03C75A; font-weight: bold; font-size: 14px; margin-left: 10px;
+        text-decoration: none;
+        color: #03C75A;
+        font-weight: 700;
+        font-size: 14px;
+        margin-left: 10px;
+        transition: all 0.2s;
+    }
+    a.naver-link:hover {
+        color: #02A047;
+        text-decoration: underline;
     }
     
     /* 사이드바 */
-    .sidebar-logo-img { width: 50px; border-radius: 12px; margin-bottom: 5px; }
-    .sidebar-title { text-align: center; font-weight: 800; font-size: 16px; color: #153d63 !important; margin: 0 0 20px 0; line-height: 1.3; }
-    .splash-logo { width: 120px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); opacity: 0.9; }
-    .main-title-logo { width: 45px; height: 45px; border-radius: 10px; margin-right: 15px; vertical-align: middle; }
+    .sidebar-logo-img {
+        width: 60px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .sidebar-title {
+        text-align: center;
+        font-weight: 800;
+        font-size: 17px;
+        color: #153d63 !important;
+        margin: 0 0 20px 0;
+        line-height: 1.4;
+    }
+    .splash-logo {
+        width: 140px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .main-title-logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        margin-right: 15px;
+        vertical-align: middle;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
     
-    /* 차트 배경 */
-    [data-testid="stBarChart"] {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid #eee;
+    /* [수정] 로딩 표시 */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+    }
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #153d63;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+        color: #153d63;
+        font-weight: 600;
+        font-size: 16px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # --- 데이터 로드 ---
-if 'pop_df' not in st.session_state:
-    st.session_state['pop_df'] = load_population_data()
-df = st.session_state['pop_df']
+@st.cache_data
+def load_cached_population_data():
+    """인구 데이터 캐싱"""
+    return load_population_data()
+
+df = load_cached_population_data()
 
 # --- 사이드바 ---
 with st.sidebar:
-    st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+    
     logo_path = "images/logo.png"
     if os.path.exists(logo_path):
         img_b64 = get_base64_of_bin_file(logo_path)
-        st.markdown(f"""<div style="text-align:center; margin-bottom:10px;"><img src="data:image/png;base64,{img_b64}" class="sidebar-logo-img"><div class="sidebar-title">키워드 전략<br>분석시스템</div></div>""", unsafe_allow_html=True)
+        st.markdown(
+            f"""<div style="text-align:center; margin-bottom:15px;">
+                <img src="data:image/png;base64,{img_b64}" class="sidebar-logo-img">
+                <div class="sidebar-title">Brandiup<br>키워드 전략 분석</div>
+            </div>""",
+            unsafe_allow_html=True
+        )
     
     st.markdown("---")
-    st.header("정보 입력")
-    shop_name = st.text_input("가게명", "명가 닭국수")
-    category = st.selectbox("업종 카테고리", ["한식", "중식", "일식", "양식", "카페/디저트", "고기/구이", "술집", "뷰티/미용", "숙박/펜션", "기타"])
-    products = st.text_input("대표 메뉴", "닭국수")
-    tags_input = st.text_input("가게 특징 태그 (#구분)", "#해장 #비오는날 #든든한점심")
+    st.header("📝 정보 입력")
+    
+    shop_name = st.text_input("🏪 가게명", "명가 닭국수", help="분석할 가게 이름을 입력하세요")
+    
+    category = st.selectbox(
+        "📂 업종 카테고리",
+        ["한식", "중식", "일식", "양식", "카페/디저트", "국수/면요리", "보양식", 
+         "고기/구이", "술집", "분식", "치킨", "뷰티/미용", "숙박/펜션", "기타"],
+        help="가게의 주요 업종을 선택하세요"
+    )
+    
+    products = st.text_input(
+        "🍜 대표 메뉴",
+        "닭국수",
+        help="주력 메뉴를 입력하세요 (콤마로 구분 가능)"
+    )
+    
+    tags_input = st.text_input(
+        "🏷️ 가게 특징",
+        "#해장 #비오는날 #든든한점심",
+        help="가게의 특징을 #태그 형식으로 입력하세요"
+    )
     
     st.markdown("---")
     st.markdown("**📍 분석 지역 선택**")
+    
     sido_list = get_sido_list(df)
     idx_sido = sido_list.index("경기도") if "경기도" in sido_list else 0
     selected_sido = st.selectbox("시/도", sido_list, index=idx_sido)
+    
     sigungu_list = get_sigungu_list(df, selected_sido)
     idx_sigungu = sigungu_list.index("용인시 처인구") if "용인시 처인구" in sigungu_list else 0
     selected_sigungu = st.selectbox("시/군/구", sigungu_list, index=idx_sigungu)
+    
     dong_list = get_dong_list(df, selected_sido, selected_sigungu)
-    selected_dongs = st.multiselect("읍/면/동 (다중 선택)", dong_list, placeholder="분석 지역 선택")
+    selected_dongs = st.multiselect(
+        "읍/면/동 (다중 선택)",
+        dong_list,
+        placeholder="분석할 상권을 선택하세요"
+    )
     
     st.markdown("---")
-    run_btn = st.button("전략 키워드 리포트 생성 🚀", type="primary")
+    run_btn = st.button("🚀 전략 키워드 리포트 생성", type="primary", use_container_width=True)
 
 # --- 메인 로직 ---
 if run_btn:
     if not selected_dongs:
-        st.error("지역을 선택해주세요.")
+        st.error("❌ 분석할 지역을 선택해주세요.")
     else:
+        # 로고 표시
         logo_path = "images/logo.png"
         img_html = ""
         if os.path.exists(logo_path):
             img_b64 = get_base64_of_bin_file(logo_path)
             img_html = f'<img src="data:image/png;base64,{img_b64}" class="main-title-logo">'
         
-        st.markdown(f"""<div style="display:flex; align-items:center; margin-bottom:20px;">{img_html}<h1 style="margin:0; padding:0; font-size:2.2rem; color:#153d63;">Brandiup 상권 분석 리포트</h1></div>""", unsafe_allow_html=True)
+        st.markdown(
+            f"""<div style="display:flex; align-items:center; margin-bottom:25px;">
+                {img_html}
+                <h1 style="margin:0; padding:0; font-size:2.2rem; color:#153d63;">
+                    Brandiup 상권 분석 리포트
+                </h1>
+            </div>""",
+            unsafe_allow_html=True
+        )
 
-        # 1. 인구 분석
+        # ===== SECTION 1: 인구 분석 =====
         agg_data = aggregate_population_data(df, selected_sido, selected_sigungu, selected_dongs)
         persona = get_persona_from_aggregated(agg_data)
         
-        # [추가] 총 인구수 계산
         total_population = 0
         if agg_data:
             total_population = sum(sum(v.values()) for v in agg_data.values())
 
-        loc_str = f"{selected_sigungu} {selected_dongs[0]}" + (f" 외 {len(selected_dongs)-1}곳" if len(selected_dongs)>1 else "")
+        loc_str = f"{selected_sigungu} {selected_dongs[0]}" + (
+            f" 외 {len(selected_dongs)-1}곳" if len(selected_dongs) > 1 else ""
+        )
         
-        st.markdown(f"""<div class="section-header-container"><span class="section-badge">01</span><span class="section-title-text">우리 동네 인구 분석 : {loc_str}</span></div>""", unsafe_allow_html=True)
+        st.markdown(
+            f"""<div class="section-header-container">
+                <span class="section-badge">01</span>
+                <span class="section-title-text">우리 동네 인구 분석 : {loc_str}</span>
+            </div>""",
+            unsafe_allow_html=True
+        )
         
-        col_demo_1, col_demo_2 = st.columns([1, 2])
-        with col_demo_1:
-            st.markdown(f"""
-            <div class='pro-card'>
-                <div class='card-header'>CORE TARGET</div>
-                <div class='card-title'>{persona}</div>
-                <hr style='margin:15px 0; border-color:#eee;'>
-                <div class='card-header'>TOTAL POPULATION</div>
-                <div class='total-pop'>{total_population:,} 명</div>
-                <div class='card-sub-metric' style='margin-top:5px;'>선택하신 상권의 총 거주 인구입니다.</div>
-            </div>""", unsafe_allow_html=True)
+        # 핵심 타겟 정보
+        st.markdown(f"""
+        <div class='pro-card'>
+            <div class='card-header'>🎯 Core Target</div>
+            <div class='card-title'>{persona}</div>
+            <hr style='margin:18px 0; border:0; border-top:2px solid #f0f2f6;'>
+            <div class='card-header'>👥 Total Population</div>
+            <div class='total-pop'>{total_population:,} 명</div>
+            <div class='card-sub-metric' style='margin-top:8px;'>
+                선택하신 상권의 총 거주 인구입니다.
+            </div>
+        </div>""", unsafe_allow_html=True)
         
-        with col_demo_2:
-            if agg_data:
-                chart_df = pd.DataFrame.from_dict(agg_data, orient='index').reset_index()
-                chart_df.columns = ['연령대', '남성', '여성']
-                chart_long = pd.melt(chart_df, id_vars=['연령대'], var_name='성별', value_name='인구수')
-                
-                # [수정] 차트 디자인 개선 (브랜디업 컬러 + 가로 글씨 + 높이 확대)
-                c = alt.Chart(chart_long).mark_bar().encode(
-                    x=alt.X('연령대', axis=alt.Axis(labelAngle=0, title=None)), # 가로 글씨
-                    y=alt.Y('인구수', axis=alt.Axis(title=None)),
-                    color=alt.Color('성별', scale=alt.Scale(domain=['남성', '여성'], range=['#153d63', '#FF8F00'])), # 브랜드 컬러
-                    tooltip=['연령대', '성별', '인구수']
-                ).properties(height=350) # 높이 확대
-                
-                st.altair_chart(c, use_container_width=True)
-
-        # 2. 키워드 분석 시작
-        st.markdown(f"<div class='section-header-container'><span class='section-badge'>02</span><span class='section-title-text'>전략 키워드 리포트</span></div>", unsafe_allow_html=True)
-        
-        with st.spinner("AI가 메뉴를 확장하고 키워드 조합을 검증하고 있습니다..."):
-            # [Step 1] 재료 추출
-            materials = extract_keyword_materials(shop_name, products, category, tags_input, persona, loc_str)
+        # [수정 3] 인구 차트 - container 제거
+        if agg_data:
+            chart_df = pd.DataFrame.from_dict(agg_data, orient='index').reset_index()
+            chart_df.columns = ['연령대', '남성', '여성']
+            chart_long = pd.melt(chart_df, id_vars=['연령대'], var_name='성별', value_name='인구수')
             
-            if materials:
-                # 인사이트 박스 출력
-                insight_text = materials.get('insight', '데이터 분석 기반의 전략 제안입니다.')
-                st.markdown(f"""
-                <div class="insight-box">
-                    💡 <strong>AI Insight:</strong> {insight_text}
+            # [수정 1] Y축 포맷 완전 수정 - labelExpr 사용
+            c = alt.Chart(chart_long).mark_bar().encode(
+                x=alt.X('연령대', axis=alt.Axis(labelAngle=0, title=None)),
+                y=alt.Y(
+                    '인구수', 
+                    axis=alt.Axis(
+                        title='인구수 (명)',
+                        labelExpr="format(datum.value, ',.0f')"  # 과학적 표기법 방지
+                    )
+                ),
+                color=alt.Color(
+                    '성별',
+                    scale=alt.Scale(domain=['남성', '여성'], range=['#153d63', '#FF9800']),
+                    legend=alt.Legend(title=None, orient='top')
+                ),
+                tooltip=[
+                    alt.Tooltip('연령대', title='연령대'),
+                    alt.Tooltip('성별', title='성별'),
+                    alt.Tooltip('인구수', title='인구수', format=',')
+                ]
+            ).properties(height=400)
+            
+            st.altair_chart(c, use_container_width=True)
+
+        # ===== SECTION 2: 키워드 분석 =====
+        st.markdown(
+            f"""<div class='section-header-container'>
+                <span class='section-badge'>02</span>
+                <span class='section-title-text'>전략 키워드 리포트</span>
+            </div>""",
+            unsafe_allow_html=True
+        )
+        
+        # [수정 2] 로딩 표시 - 완전 가운데 정렬
+        progress_placeholder = st.empty()
+        
+        with progress_placeholder.container():
+            st.markdown("""
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">🤖 AI가 키워드를 분석하고 있습니다...</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Step 1: AI 재료 추출
+        materials = extract_keyword_materials(
+            shop_name, products, category, tags_input, persona, loc_str
+        )
+        
+        if materials:
+            with progress_placeholder.container():
+                st.markdown("""
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">📡 네이버 API로 검색량을 확인하고 있습니다...</div>
                 </div>
                 """, unsafe_allow_html=True)
+            
+            # Step 2: 키워드 검증
+            report = generate_and_validate_keywords(loc_str, products, tags_input, materials)
+            
+            progress_placeholder.empty()
+            
+            # 인사이트 박스
+            insight_text = materials.get('insight', '데이터 분석 기반의 전략 제안입니다.')
+            st.markdown(f"""
+            <div class="insight-box">
+                💡 <strong>AI Insight:</strong> {insight_text}
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # 키워드 결과 출력
+            col_main, col_detail = st.columns(2)
+            
+            # A. 메인 타겟 키워드
+            with col_main:
+                st.markdown("#### 📢 메인 타겟 키워드")
+                st.caption("검색량이 많아 유입에 효과적인 키워드입니다.")
                 
-                # [Step 2] 조합 생성 및 검증
-                report = generate_and_validate_keywords(loc_str, products, tags_input, materials)
-                
-                # 결과 출력 (2단 컬럼)
-                col_main, col_detail = st.columns(2)
-                
-                # A. 메인 타겟 키워드
-                with col_main:
-                    st.markdown("#### 📢 메인 타겟 키워드 (Volume)")
-                    st.caption("검색량이 많아 인지도 상승과 유입에 효과적인 키워드입니다.")
-                    
-                    if report['main_keywords']:
-                        for item in report['main_keywords']:
-                            naver_url = f"https://search.naver.com/search.naver?query={item['keyword']}"
-                            st.markdown(f"""
-                            <div class="keyword-item">
-                                <div>
-                                    <span class="kwd-text">{item['keyword']}</span>
-                                    <span class="kwd-tag tag-main">Main</span>
-                                </div>
-                                <div>
-                                    <span class="kwd-vol">월 {item['volume']:,}건</span>
-                                    <a href="{naver_url}" target="_blank" class="naver-link">🔍</a>
-                                </div>
+                if report['main_keywords']:
+                    for item in report['main_keywords']:
+                        comp_class = f"comp-{item.get('competition', 'low')}"
+                        comp_text = {
+                            'low': '낮음',
+                            'medium': '보통',
+                            'high': '높음'
+                        }.get(item.get('competition', 'low'), '보통')
+                        
+                        is_estimated = item.get('is_estimated', False)
+                        vol_display = f"🔥 {item['volume']:,}"
+                        if is_estimated:
+                            vol_display = f"📊 ~{item['volume']:,} (추정)"
+                        
+                        naver_url = f"https://search.naver.com/search.naver?query={item['keyword']}"
+                        
+                        st.markdown(f"""
+                        <div class="keyword-item">
+                            <div>
+                                <span class="kwd-text">{item['keyword']}</span>
+                                <span class="kwd-tag tag-main">메인</span>
                             </div>
-                            """, unsafe_allow_html=True)
-                    else:
-                        st.info("조건에 맞는 메인 키워드가 없습니다.")
-
-                # B. 세부 공략 키워드
-                with col_detail:
-                    st.markdown("#### 🎯 세부 공략 키워드 (Conversion)")
-                    st.caption("구체적인 상황/니즈가 반영되어 구매 전환율이 높은 꿀통입니다.")
-                    
-                    if report['detail_keywords']:
-                        for item in report['detail_keywords']:
-                            naver_url = f"https://search.naver.com/search.naver?query={item['keyword']}"
-                            st.markdown(f"""
-                            <div class="keyword-item">
-                                <div>
-                                    <span class="kwd-text">{item['keyword']}</span>
-                                    <span class="kwd-tag tag-niche">Niche</span>
-                                </div>
-                                <div>
-                                    <span class="kwd-vol">월 {item['volume']:,}건</span>
-                                    <a href="{naver_url}" target="_blank" class="naver-link">🔍</a>
-                                </div>
+                            <div style="display:flex; align-items:center;">
+                                <span class="kwd-vol">{vol_display}</span>
+                                <span class="kwd-comp {comp_class}">{comp_text}</span>
+                                <a href="{naver_url}" target="_blank" class="naver-link">검색 →</a>
                             </div>
-                            """, unsafe_allow_html=True)
-                    else:
-                        st.info("조건에 맞는 세부 키워드가 없습니다.")
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.warning("⚠️ 조건에 맞는 메인 키워드를 찾지 못했습니다. 더 넓은 지역명이나 일반적인 메뉴명을 시도해보세요.")
 
-                # 3. 콘텐츠 아이디어
-                st.markdown(f"<div class='section-header-container'><span class='section-badge'>03</span><span class='section-title-text'>콘텐츠 제작 아이디어</span></div>", unsafe_allow_html=True)
+            # B. 세부 공략 키워드
+            with col_detail:
+                st.markdown("#### 🎯 세부 공략 키워드")
+                st.caption("구매 의도가 높은 타겟 맞춤형 키워드입니다.")
                 
-                cols = st.columns(3)
+                if report['detail_keywords']:
+                    for item in report['detail_keywords']:
+                        comp_class = f"comp-{item.get('competition', 'low')}"
+                        comp_text = {
+                            'low': '낮음',
+                            'medium': '보통',
+                            'high': '높음'
+                        }.get(item.get('competition', 'low'), '보통')
+                        
+                        is_estimated = item.get('is_estimated', False)
+                        vol_display = f"🎯 {item['volume']:,}"
+                        if is_estimated:
+                            vol_display = f"📊 ~{item['volume']:,} (추정)"
+                        
+                        naver_url = f"https://search.naver.com/search.naver?query={item['keyword']}"
+                        
+                        st.markdown(f"""
+                        <div class="keyword-item">
+                            <div>
+                                <span class="kwd-text">{item['keyword']}</span>
+                                <span class="kwd-tag tag-conversion">전환형</span>
+                            </div>
+                            <div style="display:flex; align-items:center;">
+                                <span class="kwd-vol">{vol_display}</span>
+                                <span class="kwd-comp {comp_class}">{comp_text}</span>
+                                <a href="{naver_url}" target="_blank" class="naver-link">검색 →</a>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                else:
+                    st.info("구체적인 세부 키워드를 찾지 못했습니다.")
+            
+            # C. 연관 키워드 (보너스)
+            if report.get('related_keywords'):
+                st.markdown("#### ✨ 보너스 연관 키워드")
+                st.caption("네이버 API가 추천한 추가 키워드입니다.")
+                
+                cols_related = st.columns(3)
+                for idx, item in enumerate(report['related_keywords']):
+                    with cols_related[idx % 3]:
+                        naver_url = f"https://search.naver.com/search.naver?query={item['keyword']}"
+                        st.markdown(f"""
+                        <div class="keyword-item">
+                            <div>
+                                <span class="kwd-text" style="font-size:14px;">{item['keyword']}</span>
+                            </div>
+                            <div>
+                                <span class="kwd-vol">⭐ {item['volume']:,}</span>
+                                <a href="{naver_url}" target="_blank" class="naver-link">→</a>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+            # ===== SECTION 3: 콘텐츠 아이디어 =====
+            st.markdown(
+                f"""<div class='section-header-container'>
+                    <span class='section-badge'>03</span>
+                    <span class='section-title-text'>콘텐츠 제작 아이디어</span>
+                </div>""",
+                unsafe_allow_html=True
+            )
+            
+            if report['content_ideas']:
+                cols_idea = st.columns(len(report['content_ideas']))
                 for idx, idea in enumerate(report['content_ideas']):
-                    with cols[idx]:
+                    with cols_idea[idx]:
                         st.markdown(f"""
                         <div class="idea-card">
-                            <h5 style="margin:0 0 10px 0; color:#153d63;">📝 아이디어 {idx+1}</h5>
-                            <div style="font-size:14px; color:#555;">{idea}</div>
+                            <h5 style="margin:0 0 12px 0; color:#153d63; font-size:15px;">
+                                💡 아이디어 {idx+1}
+                            </h5>
+                            <div style="font-size:14px; color:#555; line-height:1.6;">
+                                {idea}
+                            </div>
                         </div>
                         """, unsafe_allow_html=True)
             else:
-                st.error("AI 분석에 실패했습니다.")
+                st.info("콘텐츠 아이디어를 생성하지 못했습니다.")
+            
+        else:
+            progress_placeholder.empty()
+            st.error("❌ AI 분석에 실패했습니다. OpenAI API 키를 확인해주세요.")
 
 else:
+    # 초기 화면
     logo_path = "images/logo.png"
     if os.path.exists(logo_path):
         img_b64 = get_base64_of_bin_file(logo_path)
-        st.markdown(f"""<div style="display:flex; justify-content:center; align-items:center; height:70vh;"><img src="data:image/png;base64,{img_b64}" class="splash-logo"></div>""", unsafe_allow_html=True)
+        st.markdown(
+            f"""<div style="display:flex; justify-content:center; align-items:center; height:70vh;">
+                <img src="data:image/png;base64,{img_b64}" class="splash-logo">
+            </div>""",
+            unsafe_allow_html=True
+        )
