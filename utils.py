@@ -40,6 +40,11 @@ def get_keyword_volume(keyword):
     params = {"hintKeywords": keyword.replace(" ", ""), "showDetail": 1}
     try:
         res = requests.get(ADS_BASE_URL + uri, params=params, headers=headers)
+
+        if res.status_code != 200:
+            print(f"❌ API Error: {res.status_code}")
+            print(f"❌ Response: {res.text}") # 여기에 'IP가 등록되지 않음' 같은 메시지가 뜹니다.
+                    
         if res.status_code == 200:
             return res.json().get("keywordList", [])
     except:
