@@ -22,6 +22,9 @@ if run_btn:
         target_keyword = f"{location} {category_keyword}"
         raw_data = get_keyword_volume(target_keyword)
         
+        # [추가] 데이터 개수 확인용
+        st.write(f"API가 찾아낸 연관 키워드 개수: {len(raw_data)} 개") 
+
         if not raw_data:
             st.error("데이터를 가져오지 못했습니다. API 키 설정을 확인하세요.")
         else:
